@@ -27,3 +27,8 @@ export type CalculateRevenueFn = (
   startTimestamp: Date,
   endTimestamp: Date,
 ) => Promise<RevenueResult>
+
+export interface ReferralEvent {
+  userAddress: string
+  timestamp: number
+}
