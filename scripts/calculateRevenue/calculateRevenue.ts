@@ -1,16 +1,32 @@
 import calculateRevenueHandlers from './protocols'
-import { readFileSync } from 'fs'
+import { readFileSync, writeFileSync } from 'fs'
 import yargs from 'yargs'
-import { protocols, Protocol } from '../types'
+import { protocols, Protocol, RevenueResult } from '../types'
 
 async function main(args: ReturnType<typeof parseArgs>) {
   const eligibleAddresses = readFileSync(args['input-addresses'], 'utf-8')
-    .split('\n').filter(address => address !== '')
+    .split('\n')
+    .filter((address) => address !== '')
 
   const handler = calculateRevenueHandlers[args['protocol-id'] as Protocol]
-  for (const address of eligibleAddresses) {
-    await handler(address, new Date(args['start-timestamp']), new Date(args['end-timestamp']))
+
+  const allResults: Record<string, RevenueResult> = {}
+
+  for (let i = 0; i < eligibleAddresses.length; i++) {
+    const address = eligibleAddresses[i]
+    console.log(
+      `Calculating revenue for ${address} (${i + 1}/${eligibleAddresses.length})`,
+    )
+    const userResult = await handler(
+      address,
+      new Date(args['start-timestamp']),
+      new Date(args['end-timestamp']),
+    )
+    allResults[address] = userResult
   }
+
+  writeFileSync(args['output-file'], JSON.stringify(allResults, null, 4))
+  console.log(`Wrote results to ${args['output-file']}`)
 }
 
 function parseArgs() {
@@ -19,25 +35,33 @@ function parseArgs() {
       alias: 'i',
       description: 'input file path of user addresses, newline separated',
       type: 'string',
-      demandOption: true
+      demandOption: true,
+    })
+    .option('output-file', {
+      alias: 'o',
+      description: 'output file path to write JSON results',
+      type: 'string',
+      demandOption: true,
     })
     .option('protocol-id', {
       alias: 'p',
       description: 'ID of protocol to check against',
       choices: protocols,
-      demandOption: true
+      demandOption: true,
     })
     .option('start-timestamp', {
       alias: 's',
-      description: 'timestamp at which to start checking for revenue (since epoch)',
+      description:
+        'timestamp at which to start checking for revenue (since epoch)',
       type: 'number',
-      demandOption: true
+      demandOption: true,
     })
     .option('end-timestamp', {
       alias: 'e',
-      description: 'timestamp at which to stop checking for revenue (since epoch)',
+      description:
+        'timestamp at which to stop checking for revenue (since epoch)',
       type: 'number',
-      demandOption: true
+      demandOption: true,
     })
     .strict()
     .parseSync()

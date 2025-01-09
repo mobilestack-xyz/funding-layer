@@ -1,5 +1,5 @@
 export const protocols = ['Beefy'] as const
-export type Protocol = typeof protocols[number]
+export type Protocol = (typeof protocols)[number]
 
 export enum NetworkId {
   'celo-mainnet' = 'celo-mainnet',
@@ -16,12 +16,14 @@ export enum NetworkId {
   'base-sepolia' = 'base-sepolia',
 }
 
-export interface RevenueResult {
-  // Protocols may generate revenue in different denominations,
-  // this is a map from tokenIds to revenue generated for a
-  // protocol, denominated in units of the token; these maps
-  // are organized by NetworkId
-  revenue: Partial<Record<NetworkId, Record<string, string>>>
-}
+// Protocols may generate revenue in different denominations,
+// this is a map from tokenIds to revenue generated for a
+// protocol, denominated in units of the token; these maps
+// are organized by NetworkId
+export type RevenueResult = Partial<Record<NetworkId, Record<string, string>>>
 
-export type CalculateRevenueFn = (address: string, startTimestamp: Date, endTimestamp: Date) => Promise<RevenueResult>
+export type CalculateRevenueFn = (
+  address: string,
+  startTimestamp: Date,
+  endTimestamp: Date,
+) => Promise<RevenueResult>
