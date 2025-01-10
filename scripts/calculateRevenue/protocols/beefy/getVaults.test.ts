@@ -126,7 +126,7 @@ describe('getVaults', () => {
     const result = await getVaults(address, startTimestamp, endTimestamp)
 
     const expected: VaultsInfo = {
-      'beefy:vault:ethereum:0x0000000000000000000000000000000000000000': {
+      'beefy:vault:arbitrum:0x0000000000000000000000000000000000000000': {
         networkId: NetworkId['arbitrum-one'],
         vaultAddress: '0x0000000000000000000000000000000000000000',
         txHistory: [

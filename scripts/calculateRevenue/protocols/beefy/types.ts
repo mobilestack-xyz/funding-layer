@@ -1,5 +1,6 @@
 import { BeefyInvestorTransaction } from '../../../protocol-filters/beefy'
 import { Address } from 'viem'
+import { NetworkId } from '../../../types'
 
 export interface BlockTimestampData {
   height: number
