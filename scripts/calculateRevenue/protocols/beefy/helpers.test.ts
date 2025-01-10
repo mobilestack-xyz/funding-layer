@@ -2,16 +2,15 @@ import {
   fetchVaultTvlHistory,
   getNearestBlock,
   fetchFeeEvents,
-  BeefyVaultTvlData,
-  BlockTimestampData,
-} from './beefy'
-import { getViemPublicClient, getStrategyContract } from './utils/viem'
-import { NetworkId } from '../../types'
+} from './helpers'
+import { BeefyVaultTvlData, BlockTimestampData } from './types'
+import { getViemPublicClient, getStrategyContract } from '../utils/viem'
+import { NetworkId } from '../../../types'
 import nock from 'nock'
 
-jest.mock('./utils/viem')
+jest.mock('../utils/viem')
 
-describe('Beefy revenue calculation', () => {
+describe('Beefy revenue calculation helpers', () => {
   describe('fetchVaultTvlHistory', () => {
     it('should return correct results for a <1 week span', async () => {
       const mockVaultTvlData = [
