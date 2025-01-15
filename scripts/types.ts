@@ -16,6 +16,11 @@ export enum NetworkId {
   'base-sepolia' = 'base-sepolia',
 }
 
+export interface TokenPriceData {
+  priceUsd: string
+  priceFetchedAt: number
+}
+
 // Protocols may generate revenue in different denominations,
 // this is a map from tokenIds to revenue generated for a
 // protocol, denominated in units of the token; these maps
