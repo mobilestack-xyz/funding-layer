@@ -11,12 +11,17 @@ const ONE_WEEK = 7 * 24 * 60 * 60 * 1000
  * For a given vault and date range, fetches historical time-series information about the TVL of the vault.
  * The TVL data consists of 15-minute snapshots.
  */
-export async function fetchVaultTvlHistory(
-  vaultAddress: string,
-  beefyChain: string,
-  startTimestamp: Date,
-  endTimestamp: Date,
-): Promise<BeefyVaultTvlData[]> {
+export async function fetchVaultTvlHistory({
+  vaultAddress,
+  beefyChain,
+  startTimestamp,
+  endTimestamp,
+}: {
+  vaultAddress: string
+  beefyChain: string
+  startTimestamp: Date
+  endTimestamp: Date
+}): Promise<BeefyVaultTvlData[]> {
   // This endpoint accepts a maximum of one-week long spans.
   // We need to break down the provided date range into week-long durations.
   const timestamps = []
