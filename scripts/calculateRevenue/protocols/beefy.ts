@@ -12,11 +12,11 @@ const ONE_WEEK = 7 * 24 * 60 * 60 * 1000
 const NETWORK_ID_TO_DEFI_LLAMA_CHAIN: Partial<{
   [networkId in NetworkId]: string // eslint-disable-line @typescript-eslint/no-unused-vars
 }> = {
-  [NetworkId['ethereum-mainnet']]: 'Ethereum',
-  [NetworkId['arbitrum-one']]: 'Arbitrum',
-  [NetworkId['op-mainnet']]: 'Optimism',
-  [NetworkId['celo-mainnet']]: 'Celo',
-  [NetworkId['polygon-pos-mainnet']]: 'Polygon',
+  [NetworkId['ethereum-mainnet']]: 'ethereum',
+  [NetworkId['arbitrum-one']]: 'arbitrum',
+  [NetworkId['op-mainnet']]: 'optimism',
+  [NetworkId['celo-mainnet']]: 'celo',
+  [NetworkId['polygon-pos-mainnet']]: 'polygon',
   [NetworkId['base-mainnet']]: 'base',
 }
 
@@ -45,9 +45,6 @@ export async function getNearestBlock(
     `${DEFI_LLAMA_API_URL}/block/${defiLlamaChain}/${unixTimestamp}`,
   )
   if (!response.ok) {
-    console.log(
-      `${DEFI_LLAMA_API_URL}/block/${defiLlamaChain}/${unixTimestamp}`,
-    )
     throw new Error(
       `Error while fetching block timestamp from DefiLlama: ${response}`,
     )
@@ -90,7 +87,9 @@ export async function fetchFeeEvents(
         timestamp: new Date(Number(block.timestamp * 1000n)),
       })
     }
-    currentBlock = toBlock
+    // getEvents is inclusive to both blocks in the range; we add one block here
+    // while clamping to the endBlock to ensure we don't double-count nor overshoot.
+    currentBlock = Math.min(toBlock + 1, endBlock)
   }
   return feeEvents
 }

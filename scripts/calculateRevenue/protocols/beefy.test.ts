@@ -118,7 +118,7 @@ describe('Beefy revenue calculation', () => {
         height: 345,
       }
       nock(`https://coins.llama.fi`)
-        .get(`/block/Arbitrum/1736525692`)
+        .get(`/block/arbitrum/1736525692`)
         .reply(200, mockBlockTimestamp)
 
       const networkId = NetworkId['arbitrum-one']
@@ -133,6 +133,7 @@ describe('Beefy revenue calculation', () => {
       const mockGetFeeEvent = jest
         .fn()
         .mockImplementation(({ fromBlock }: { fromBlock: bigint }) => {
+          console.log(fromBlock)
           return [
             {
               blockNumber: fromBlock,
@@ -169,10 +170,10 @@ describe('Beefy revenue calculation', () => {
       }
 
       nock(`https://coins.llama.fi`)
-        .get(`/block/Arbitrum/0`)
+        .get(`/block/arbitrum/0`)
         .reply(200, mockStartBlockTimestamp)
       nock(`https://coins.llama.fi`)
-        .get(`/block/Arbitrum/1`)
+        .get(`/block/arbitrum/1`)
         .reply(200, mockEndBlockTimestamp)
 
       const vaultAddress = '0x123'
@@ -188,7 +189,7 @@ describe('Beefy revenue calculation', () => {
 
       const expected = [
         { beefyFee: 100n, timestamp: new Date('1970-01-01T00:00:00.000Z') },
-        { beefyFee: 100n, timestamp: new Date('1970-01-12T13:46:40.000Z') },
+        { beefyFee: 100n, timestamp: new Date('1970-01-12T13:48:20.000Z') },
       ]
       expect(result).toEqual(expected)
       expect(mockGetFeeEvent).toHaveBeenCalledTimes(2)
@@ -197,7 +198,7 @@ describe('Beefy revenue calculation', () => {
         toBlock: 10000n,
       })
       expect(mockGetFeeEvent).toHaveBeenCalledWith({
-        fromBlock: 10000n,
+        fromBlock: 10001n,
         toBlock: 15000n,
       })
     })
