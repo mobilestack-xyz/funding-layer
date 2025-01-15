@@ -16,6 +16,8 @@ describe('Beefy filter function', () => {
     const event: ReferralEvent = {
       userAddress: address,
       timestamp: new Date('2023-09-30T00:00:00Z').getTime(),
+      protocol: 'Beefy',
+      referrerId: 'referrer1',
     }
 
     const result = await filter(event)
@@ -32,6 +34,8 @@ describe('Beefy filter function', () => {
     const event: ReferralEvent = {
       userAddress: address,
       timestamp: new Date('2023-09-30T00:00:00Z').getTime(),
+      protocol: 'Beefy',
+      referrerId: 'referrer1',
     }
 
     const result = await filter(event)
@@ -52,6 +56,8 @@ describe('Beefy filter function', () => {
     const event: ReferralEvent = {
       userAddress: address,
       timestamp: new Date('2023-09-30T00:00:00Z').getTime(),
+      protocol: 'Beefy',
+      referrerId: 'referrer1',
     }
 
     const result = await filter(event)
