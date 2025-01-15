@@ -4,13 +4,17 @@ import {
   BeefyInvestorTransactionWithUsdBalance,
 } from './types'
 import { getStrategyContract } from '../utils/viem'
-import { NetworkId } from '../../../types'
+import { NetworkId, TokenPriceData } from '../../../types'
 import { Address } from 'viem'
 import { calculateVaultRevenue, calculateRevenue } from './index'
 import { getVaults } from './getVaults'
+import { getErc20Contract } from '../../../utils'
+import { fetchTokenPrices } from '../utils/tokenPrices'
 
 jest.mock('./getVaults')
 jest.mock('../utils/viem')
+jest.mock('../../../utils')
+jest.mock('../utils/tokenPrices')
 
 const mockArbitrumVaultInfo: VaultInfo = {
   networkId: NetworkId['arbitrum-one'],
@@ -126,6 +130,24 @@ const mockEthereumVaultInfo: VaultInfo = {
   ],
 }
 
+const mockTokenPricesArbitrum: TokenPriceData[] = [
+  {
+    priceUsd: '1000',
+    priceFetchedAt: new Date('2025-01-01T20:29:55.868Z').getTime(), // Just before the first fee
+  },
+  {
+    priceUsd: '1500',
+    priceFetchedAt: new Date('2025-01-02T20:29:55.868Z').getTime(), // Just before the second fee
+  },
+]
+
+const mockTokenPricesEthereum: TokenPriceData[] = [
+  {
+    priceUsd: '500',
+    priceFetchedAt: new Date('2025-01-01T20:29:55.868Z').getTime(), // Just before the only fee
+  },
+]
+
 describe('Beefy revenue calculation', () => {
   beforeEach(() => {
     jest.resetAllMocks()
@@ -140,17 +162,21 @@ describe('Beefy revenue calculation', () => {
         },
       } as unknown as ReturnType<typeof getStrategyContract>)
 
-      const mockNativeTokenId = `${NetworkId['arbitrum-one']}:${mockNativeAddress}`
+      jest.mocked(getErc20Contract).mockResolvedValue({
+        read: {
+          decimals: jest.fn().mockResolvedValue(4),
+        },
+      } as unknown as ReturnType<typeof getErc20Contract>)
 
+      jest.mocked(fetchTokenPrices).mockResolvedValue(mockTokenPricesArbitrum)
       const result = await calculateVaultRevenue(mockArbitrumVaultInfo)
 
-      // First fee of 1000 occurs while vault has 1000, user has 100 -> 100/1000 * 1000 = 100
-      // Second fee of 5000 occurs while vault has 2000, user has 400 -> 400/2000 * 5000 = 1000
-      const expected = {
-        tokenId: mockNativeTokenId,
-        revenue: '1100',
-      }
-      expect(result).toEqual(expected)
+      // native token has 4 decimals, so 1 token is 10000 wei
+      // First fee of 1000 occurs while vault has 1000, user has 100 -> 100/1000 * 1000 = 100 wei
+      // - token price is 1000 -> 100 / 10000 * 1000 USD = 10 USD
+      // Second fee of 5000 occurs while vault has 2000, user has 400 -> 400/2000 * 5000 = 1000 wei
+      // - token price is 1500 -> 1000 / 10000 * 1500 USD = 150 USD
+      expect(result).toEqual(160)
     })
   })
 
@@ -171,7 +197,6 @@ describe('Beefy revenue calculation', () => {
         '0x3333333333333333333333333333333333333333'
 
       const mockNativeTokenIdArbitrum = `${NetworkId['arbitrum-one']}:${mockNativeAddressArbitrum}`
-      const mockNativeTokenIdEthereum = `${NetworkId['ethereum-mainnet']}:${mockNativeAddressEthereum}`
 
       jest.mocked(getVaults).mockResolvedValue(mockVaultsInfo)
       jest.mocked(getStrategyContract).mockImplementation(((
@@ -191,20 +216,29 @@ describe('Beefy revenue calculation', () => {
         })
       }) as unknown as typeof getStrategyContract)
 
+      jest.mocked(getErc20Contract).mockResolvedValue({
+        read: {
+          decimals: jest.fn().mockResolvedValue(4),
+        },
+      } as unknown as ReturnType<typeof getErc20Contract>)
+
+      jest
+        .mocked(fetchTokenPrices)
+        .mockImplementation(async ({ tokenId }: { tokenId: string }) => {
+          if (tokenId === mockNativeTokenIdArbitrum) {
+            return mockTokenPricesArbitrum
+          } else {
+            return mockTokenPricesEthereum
+          }
+        })
+
       const result = await calculateRevenue({
         address: '0x123',
         startTimestamp: new Date(0),
         endTimestamp: new Date(100),
       })
-      const expected = {
-        [NetworkId['arbitrum-one']]: {
-          [mockNativeTokenIdArbitrum]: '1100',
-        },
-        [NetworkId['ethereum-mainnet']]: {
-          [mockNativeTokenIdEthereum]: '100',
-        },
-      }
-      expect(result).toEqual(expected)
+      // 160 USD from Arbitrum, 5 from Ethereum
+      expect(result).toEqual(165)
     })
   })
 })

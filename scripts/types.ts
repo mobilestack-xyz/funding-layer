@@ -21,17 +21,11 @@ export interface TokenPriceData {
   priceFetchedAt: number
 }
 
-// Protocols may generate revenue in different denominations,
-// this is a map from tokenIds to revenue generated for a
-// protocol, denominated in units of the token; these maps
-// are organized by NetworkId
-export type RevenueResult = Partial<Record<NetworkId, Record<string, string>>>
-
 export type CalculateRevenueFn = (params: {
   address: string
   startTimestamp: Date
   endTimestamp: Date
-}) => Promise<RevenueResult>
+}) => Promise<number>
 
 export interface ReferralEvent {
   userAddress: string

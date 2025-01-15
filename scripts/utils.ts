@@ -1,5 +1,6 @@
 import { NetworkId } from './types'
 import { registryContractAbi } from '../abis/Registry'
+import ERC20Abi from './abis/ERC20'
 import { mainnet, arbitrum, optimism, polygon, base, celo } from 'viem/chains'
 import {
   createPublicClient,
@@ -58,6 +59,15 @@ export async function getRegistryContract(
   return getContract({
     address: registryAddress,
     abi: registryContractAbi,
+    client,
+  })
+}
+
+export async function getErc20Contract(address: Address, networkId: NetworkId) {
+  const client = getViemPublicClient(networkId)
+  return getContract({
+    address: address,
+    abi: ERC20Abi,
     client,
   })
 }

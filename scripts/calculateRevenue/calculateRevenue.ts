@@ -1,7 +1,7 @@
 import calculateRevenueHandlers from './protocols'
 import { readFileSync, writeFileSync } from 'fs'
 import yargs from 'yargs'
-import { protocols, Protocol, RevenueResult } from '../types'
+import { protocols, Protocol } from '../types'
 
 async function main(args: ReturnType<typeof parseArgs>) {
   const eligibleAddresses = readFileSync(args['input-addresses'], 'utf-8')
@@ -10,22 +10,31 @@ async function main(args: ReturnType<typeof parseArgs>) {
 
   const handler = calculateRevenueHandlers[args['protocol-id'] as Protocol]
 
-  const allResults: Record<string, RevenueResult> = {}
+  const allResults: Array<{
+    address: string
+    revenue: number
+  }> = []
 
   for (let i = 0; i < eligibleAddresses.length; i++) {
     const address = eligibleAddresses[i]
     console.log(
       `Calculating revenue for ${address} (${i + 1}/${eligibleAddresses.length})`,
     )
-    const userResult = await handler({
+    const revenue = await handler({
       address,
       startTimestamp: new Date(args['start-timestamp']),
       endTimestamp: new Date(args['end-timestamp']),
     })
-    allResults[address] = userResult
+    allResults.push({
+      address,
+      revenue,
+    })
   }
+  const output = allResults
+    .map((result) => `${result.address},${result.revenue}`)
+    .join('\n')
 
-  writeFileSync(args['output-file'], JSON.stringify(allResults, null, 4))
+  writeFileSync(args['output-file'], output)
   console.log(`Wrote results to ${args['output-file']}`)
 }
 
