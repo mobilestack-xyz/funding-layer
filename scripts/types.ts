@@ -31,4 +31,6 @@ export type CalculateRevenueFn = (params: {
 export interface ReferralEvent {
   userAddress: string
   timestamp: number
+  referrerId: string
+  protocol: Protocol
 }
