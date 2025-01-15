@@ -100,12 +100,17 @@ export async function fetchFeeEvents(
  * For a given vault and date range, fetches historical time-series information about the TVL of the vault.
  * The TVL data consists of 15-minute snapshots.
  */
-export async function fetchVaultTvlHistory(
-  vaultAddress: string,
-  beefyChain: string,
-  startTimestamp: Date,
-  endTimestamp: Date,
-): Promise<BeefyVaultTvlData[]> {
+export async function fetchVaultTvlHistory({
+  vaultAddress,
+  beefyChain,
+  startTimestamp,
+  endTimestamp,
+}: {
+  vaultAddress: string
+  beefyChain: string
+  startTimestamp: Date
+  endTimestamp: Date
+}): Promise<BeefyVaultTvlData[]> {
   // This endpoint accepts a maximum of one-week long spans.
   // We need to break down the provided date range into week-long durations.
   const timestamps = []
@@ -142,10 +147,10 @@ export async function fetchVaultTvlHistory(
   return data
 }
 
-export async function calculateRevenue(
-  _address: string,
-  _startTimestamp: Date,
-  _endTimestamp: Date,
-): Promise<RevenueResult> {
+export async function calculateRevenue(_params: {
+  address: string
+  startTimestamp: Date
+  endTimestamp: Date
+}): Promise<RevenueResult> {
   return {}
 }

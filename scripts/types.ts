@@ -22,11 +22,11 @@ export enum NetworkId {
 // are organized by NetworkId
 export type RevenueResult = Partial<Record<NetworkId, Record<string, string>>>
 
-export type CalculateRevenueFn = (
-  address: string,
-  startTimestamp: Date,
-  endTimestamp: Date,
-) => Promise<RevenueResult>
+export type CalculateRevenueFn = (params: {
+  address: string
+  startTimestamp: Date
+  endTimestamp: Date
+}) => Promise<RevenueResult>
 
 export interface ReferralEvent {
   userAddress: string
