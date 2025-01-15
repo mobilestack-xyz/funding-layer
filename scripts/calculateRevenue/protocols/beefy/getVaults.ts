@@ -44,9 +44,7 @@ export async function getVaults(
     const txHistory = portfolioData
       .filter((data) => data.product_key === vault)
       .sort((a, b) => {
-        if (new Date(a.datetime) < new Date(b.datetime)) return -1
-        if (new Date(a.datetime) > new Date(b.datetime)) return 1
-        return 0
+        return new Date(a.datetime).getTime() - new Date(b.datetime).getTime()
       })
 
     const beefyChain = txHistory[0].chain
@@ -56,18 +54,18 @@ export async function getVaults(
       networkId,
       vaultAddress,
       txHistory,
-      vaultTvlHistory: await fetchVaultTvlHistory(
+      vaultTvlHistory: await fetchVaultTvlHistory({
         vaultAddress,
         beefyChain,
         startTimestamp,
         endTimestamp,
-      ),
-      feeEvents: await fetchFeeEvents(
+      }),
+      feeEvents: await fetchFeeEvents({
         vaultAddress,
         networkId,
         startTimestamp,
         endTimestamp,
-      ),
+      }),
     }
   }
   return vaultsInfo

@@ -6,7 +6,7 @@ import {
 import { getStrategyContract } from '../utils/viem'
 import { NetworkId } from '../../../types'
 import { Address } from 'viem'
-import { calculateVaultRevenue, calculateRevenue } from './beefy'
+import { calculateVaultRevenue, calculateRevenue } from './index'
 import { getVaults } from './getVaults'
 
 jest.mock('./getVaults')
@@ -191,7 +191,11 @@ describe('Beefy revenue calculation', () => {
         })
       }) as unknown as typeof getStrategyContract)
 
-      const result = await calculateRevenue('0x123', new Date(0), new Date(100))
+      const result = await calculateRevenue({
+        address: '0x123',
+        startTimestamp: new Date(0),
+        endTimestamp: new Date(100),
+      })
       const expected = {
         [NetworkId['arbitrum-one']]: {
           [mockNativeTokenIdArbitrum]: '1100',

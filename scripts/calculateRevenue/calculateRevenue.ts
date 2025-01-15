@@ -17,11 +17,11 @@ async function main(args: ReturnType<typeof parseArgs>) {
     console.log(
       `Calculating revenue for ${address} (${i + 1}/${eligibleAddresses.length})`,
     )
-    const userResult = await handler(
+    const userResult = await handler({
       address,
-      new Date(args['start-timestamp']),
-      new Date(args['end-timestamp']),
-    )
+      startTimestamp: new Date(args['start-timestamp']),
+      endTimestamp: new Date(args['end-timestamp']),
+    })
     allResults[address] = userResult
   }
 

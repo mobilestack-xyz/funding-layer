@@ -12,11 +12,11 @@ const ONE_WEEK = 7 * 24 * 60 * 60 * 1000
 const NETWORK_ID_TO_DEFI_LLAMA_CHAIN: Partial<{
   [networkId in NetworkId]: string // eslint-disable-line @typescript-eslint/no-unused-vars
 }> = {
-  [NetworkId['ethereum-mainnet']]: 'Ethereum',
-  [NetworkId['arbitrum-one']]: 'Arbitrum',
-  [NetworkId['op-mainnet']]: 'Optimism',
-  [NetworkId['celo-mainnet']]: 'Celo',
-  [NetworkId['polygon-pos-mainnet']]: 'Polygon',
+  [NetworkId['ethereum-mainnet']]: 'ethereum',
+  [NetworkId['arbitrum-one']]: 'arbitrum',
+  [NetworkId['op-mainnet']]: 'optimism',
+  [NetworkId['celo-mainnet']]: 'celo',
+  [NetworkId['polygon-pos-mainnet']]: 'polygon',
   [NetworkId['base-mainnet']]: 'base',
 }
 
@@ -35,9 +35,6 @@ export async function getNearestBlock(
     `${DEFI_LLAMA_API_URL}/block/${defiLlamaChain}/${unixTimestamp}`,
   )
   if (!response.ok) {
-    console.log(
-      `${DEFI_LLAMA_API_URL}/block/${defiLlamaChain}/${unixTimestamp}`,
-    )
     throw new Error(
       `Error while fetching block timestamp from DefiLlama: ${response}`,
     )
@@ -50,12 +47,17 @@ export async function getNearestBlock(
 /**
  * For a given vault, fetches the record of all ChargedFee events emitted in a given timeframe
  */
-export async function fetchFeeEvents(
-  vaultAddress: Address,
-  networkId: NetworkId,
-  startTimestamp: Date,
-  endTimestamp: Date,
-): Promise<FeeEvent[]> {
+export async function fetchFeeEvents({
+  vaultAddress,
+  networkId,
+  startTimestamp,
+  endTimestamp,
+}: {
+  vaultAddress: Address
+  networkId: NetworkId
+  startTimestamp: Date
+  endTimestamp: Date
+}): Promise<FeeEvent[]> {
   const client = getViemPublicClient(networkId)
   const strategyContract = await getStrategyContract(vaultAddress, networkId)
 
@@ -80,7 +82,9 @@ export async function fetchFeeEvents(
         timestamp: new Date(Number(block.timestamp * 1000n)),
       })
     }
-    currentBlock = toBlock
+    // getEvents is inclusive to both blocks in the range; we add one block here
+    // while clamping to the endBlock to ensure we don't double-count nor overshoot.
+    currentBlock = Math.min(toBlock + 1, endBlock)
   }
   return feeEvents
 }
@@ -90,12 +94,17 @@ export async function fetchFeeEvents(
  * For a given vault and date range, fetches historical time-series information about the TVL of the vault.
  * The TVL data consists of 15-minute snapshots.
  */
-export async function fetchVaultTvlHistory(
-  vaultAddress: string,
-  beefyChain: string,
-  startTimestamp: Date,
-  endTimestamp: Date,
-): Promise<BeefyVaultTvlData[]> {
+export async function fetchVaultTvlHistory({
+  vaultAddress,
+  beefyChain,
+  startTimestamp,
+  endTimestamp,
+}: {
+  vaultAddress: string
+  beefyChain: string
+  startTimestamp: Date
+  endTimestamp: Date
+}): Promise<BeefyVaultTvlData[]> {
   // This endpoint accepts a maximum of one-week long spans.
   // We need to break down the provided date range into week-long durations.
   const timestamps = []

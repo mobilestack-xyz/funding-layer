@@ -10,6 +10,7 @@ import { getVaults } from './getVaults'
 /**
  * Given a list of transaction history on a particular Beefy vault and a timestamp,
  * returns a user's TVL in the vault at the specified time.
+ * Requires the list of txHistory to be sorted from earliest to most-recent.
  */
 export function getUserTvl(
   txHistory: BeefyInvestorTransactionWithUsdBalance[],
@@ -28,6 +29,7 @@ export function getUserTvl(
 /**
  * Given a list of Beefy vault TVL data and a timestamp, returns the vault's TVL at
  * the specified time.
+ * Requires the list of tvlHistory to be sorted from earliest to most-recent.
  */
 export function getVaultTvl(
   tvlHistory: BeefyVaultTvlData[],
@@ -76,11 +78,15 @@ export async function calculateVaultRevenue(vaultInfo: VaultInfo): Promise<{
   }
 }
 
-export async function calculateRevenue(
-  address: string,
-  startTimestamp: Date,
-  endTimestamp: Date,
-): Promise<RevenueResult> {
+export async function calculateRevenue({
+  address,
+  startTimestamp,
+  endTimestamp,
+}: {
+  address: string
+  startTimestamp: Date
+  endTimestamp: Date
+}): Promise<RevenueResult> {
   const vaultsInfo = await getVaults(address, startTimestamp, endTimestamp)
 
   const revenueResult: RevenueResult = {}
