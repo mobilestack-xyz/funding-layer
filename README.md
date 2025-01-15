@@ -14,12 +14,12 @@ yarn test
 
 ## Scripts
 
-### Filter Referrals
+### Fetch Referrals
 
-Filter out referalls where the user had already interacted with the protocol in question.
+Fetch referrals for a specific protocol, removes duplicate events across chains, and filters out events where the user was previously exposed to the protocol
 
 ```bash
-npx ts-node ./scripts/filter-referrals.ts --protocol beefy --input input.csv --output output.csv
+npx ts-node ./scripts/fetch-referrals.ts --protocol Beefy --output output.csv
 ```
 
 ## Contracts

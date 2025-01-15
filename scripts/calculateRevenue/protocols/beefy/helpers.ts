@@ -1,6 +1,7 @@
 import { NetworkId } from '../../../types'
 import { fetchWithTimeout } from '../../../utils/fetchWithTimeout'
-import { getViemPublicClient, getStrategyContract } from '../utils/viem'
+import { getStrategyContract } from '../utils/viem'
+import { getViemPublicClient } from '../../../utils'
 import { Address } from 'viem'
 import { BlockTimestampData, FeeEvent, BeefyVaultTvlData } from './types'
 
@@ -69,7 +70,7 @@ export async function fetchFeeEvents({
   const feeEvents: FeeEvent[] = []
   while (currentBlock < endBlock) {
     const toBlock = Math.min(currentBlock + blocksPer, endBlock)
-    const feeLogEvents = await await strategyContract.getEvents.ChargedFees({
+    const feeLogEvents = await strategyContract.getEvents.ChargedFees({
       fromBlock: BigInt(currentBlock),
       toBlock: BigInt(toBlock),
     })

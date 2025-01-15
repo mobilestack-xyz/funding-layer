@@ -4,11 +4,13 @@ import {
   fetchFeeEvents,
 } from './helpers'
 import { BeefyVaultTvlData, BlockTimestampData } from './types'
-import { getViemPublicClient, getStrategyContract } from '../utils/viem'
+import { getStrategyContract } from '../utils/viem'
+import { getViemPublicClient } from '../../../utils'
 import { NetworkId } from '../../../types'
 import nock from 'nock'
 
 jest.mock('../utils/viem')
+jest.mock('../../../utils')
 
 describe('Beefy revenue calculation helpers', () => {
   describe('fetchVaultTvlHistory', () => {
