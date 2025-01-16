@@ -4,6 +4,7 @@ import { getStrategyContract } from '../utils/viem'
 import { getViemPublicClient } from '../../../utils'
 import { Address } from 'viem'
 import { BlockTimestampData, FeeEvent, BeefyVaultTvlData } from './types'
+import memoize from '@github/memoize'
 
 const BEEFY_API_URL = 'https://databarn.beefy.com/api/v1/beefy'
 const DEFI_LLAMA_API_URL = 'https://coins.llama.fi'
@@ -21,11 +22,7 @@ const NETWORK_ID_TO_DEFI_LLAMA_CHAIN: Partial<{
   [NetworkId['base-mainnet']]: 'base',
 }
 
-// TODO: Memoize this function so it's not repeated for every user address
-/**
- * Uses the DefiLlama API to fetch the block number nearest a given timestamp
- */
-export async function getNearestBlock(
+export async function _getNearestBlock(
   networkId: NetworkId,
   timestamp: Date,
 ): Promise<number> {
@@ -44,11 +41,14 @@ export async function getNearestBlock(
   return blockTimestampData.height
 }
 
-// TODO: Memoize this function so it's not repeated for every user address
+export const getNearestBlock = memoize(_getNearestBlock, {
+  hash: (...params: Parameters<typeof _getNearestBlock>) => params.join(','),
+})
+
 /**
  * For a given vault, fetches the record of all ChargedFee events emitted in a given timeframe
  */
-export async function fetchFeeEvents({
+export async function _fetchFeeEvents({
   vaultAddress,
   networkId,
   startTimestamp,
@@ -90,12 +90,16 @@ export async function fetchFeeEvents({
   return feeEvents
 }
 
-// TODO: Memoize this function so it's not repeated for every user address
+export const fetchFeeEvents = memoize(_fetchFeeEvents, {
+  hash: (...params: Parameters<typeof _fetchFeeEvents>) =>
+    Object.values(params[0]).join(','),
+})
+
 /**
  * For a given vault and date range, fetches historical time-series information about the TVL of the vault.
  * The TVL data consists of 15-minute snapshots.
  */
-export async function fetchVaultTvlHistory({
+export async function _fetchVaultTvlHistory({
   vaultAddress,
   beefyChain,
   startTimestamp,
@@ -141,3 +145,8 @@ export async function fetchVaultTvlHistory({
   }
   return data
 }
+
+export const fetchVaultTvlHistory = memoize(_fetchVaultTvlHistory, {
+  hash: (...params: Parameters<typeof _fetchVaultTvlHistory>) =>
+    Object.values(params[0]).join(','),
+})

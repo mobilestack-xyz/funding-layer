@@ -1,7 +1,7 @@
 import {
-  fetchVaultTvlHistory,
-  getNearestBlock,
-  fetchFeeEvents,
+  _fetchVaultTvlHistory,
+  _getNearestBlock,
+  _fetchFeeEvents,
 } from './helpers'
 import { BeefyVaultTvlData, BlockTimestampData } from './types'
 import { getStrategyContract } from '../utils/viem'
@@ -32,7 +32,7 @@ describe('Beefy revenue calculation helpers', () => {
       const startTimestamp = new Date('2025-01-10T16:14:52+00:00')
       const endTimestamp = new Date('2025-01-13T16:14:52+00:00')
 
-      const result = await fetchVaultTvlHistory({
+      const result = await _fetchVaultTvlHistory({
         vaultAddress,
         beefyChain,
         startTimestamp,
@@ -58,7 +58,7 @@ describe('Beefy revenue calculation helpers', () => {
       const startTimestamp = new Date('2025-01-10T16:14:52+00:00')
       const endTimestamp = new Date('2025-01-17T16:14:52+00:00')
 
-      const result = await fetchVaultTvlHistory({
+      const result = await _fetchVaultTvlHistory({
         vaultAddress,
         beefyChain,
         startTimestamp,
@@ -103,7 +103,7 @@ describe('Beefy revenue calculation helpers', () => {
       const startTimestamp = new Date('2025-01-10T16:14:52+00:00')
       const endTimestamp = new Date('2025-01-20T16:14:52+00:00')
 
-      const result = await fetchVaultTvlHistory({
+      const result = await _fetchVaultTvlHistory({
         vaultAddress,
         beefyChain,
         startTimestamp,
@@ -124,7 +124,7 @@ describe('Beefy revenue calculation helpers', () => {
 
       const networkId = NetworkId['arbitrum-one']
       const timestamp = new Date(1736525692000)
-      const result = await getNearestBlock(networkId, timestamp)
+      const result = await _getNearestBlock(networkId, timestamp)
 
       expect(result).toEqual(345)
     })
@@ -180,7 +180,7 @@ describe('Beefy revenue calculation helpers', () => {
       const networkId = NetworkId['arbitrum-one']
       const startTimestamp = new Date(0)
       const endTimestamp = new Date(1000)
-      const result = await fetchFeeEvents({
+      const result = await _fetchFeeEvents({
         vaultAddress,
         networkId,
         startTimestamp,
