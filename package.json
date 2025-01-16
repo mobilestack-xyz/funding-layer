@@ -69,6 +69,5 @@
     "viem": "^2.21.54",
     "yargs": "^17.7.2"
   },
-  "prettier": "@valora/prettier-config",
-  "dependencies": {}
+  "prettier": "@valora/prettier-config"
 }
