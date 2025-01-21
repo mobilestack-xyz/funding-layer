@@ -35,7 +35,14 @@ async function getConfig() {
 
 const CONTRACT_NAME = 'Registry'
 
-const SUPPORTED_NETWORKS = ['celo', 'mainnet', 'arbitrum', 'polygon', 'op', 'base']
+const SUPPORTED_NETWORKS = [
+  'celo',
+  'mainnet',
+  'arbitrum',
+  'polygon',
+  'op',
+  'base',
+]
 
 const ONE_DAY = 60 * 60 * 24
 
