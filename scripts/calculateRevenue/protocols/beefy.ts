@@ -3,6 +3,7 @@ import { fetchWithTimeout } from '../../utils/fetchWithTimeout'
 import { getStrategyContract } from './utils/viem'
 import { getViemPublicClient } from '../../utils'
 import { Address } from 'viem'
+
 export type BeefyVaultTvlData = [string, number]
 
 const BEEFY_API_URL = 'https://databarn.beefy.com/api/v1/beefy'

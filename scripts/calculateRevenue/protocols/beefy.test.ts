@@ -12,7 +12,6 @@ import nock from 'nock'
 
 jest.mock('./utils/viem')
 jest.mock('../../utils')
-
 describe('Beefy revenue calculation', () => {
   describe('fetchVaultTvlHistory', () => {
     it('should return correct results for a <1 week span', async () => {
