@@ -196,7 +196,7 @@ describe('Beefy revenue calculation', () => {
       const mockNativeAddressEthereum =
         '0x3333333333333333333333333333333333333333'
 
-      const mockNativeTokenIdArbitrum = `${NetworkId['arbitrum-one']}:${mockNativeAddressArbitrum}`
+      const mockNativeTokenIdArbitrum = `${NetworkId['arbitrum-one']}:native`
 
       jest.mocked(getVaults).mockResolvedValue(mockVaultsInfo)
       jest.mocked(getStrategyContract).mockImplementation(((

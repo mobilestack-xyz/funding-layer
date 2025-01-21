@@ -9,6 +9,8 @@ import { getVaults } from './getVaults'
 import { fetchTokenPrices } from '../utils/tokenPrices'
 import { getErc20Contract } from '../../../utils'
 
+// 8 was chosen arbitrarily, any large enough number will do,
+// since we expect revenue to often be small fractions of dollars.
 const REVENUE_USD_PRECISION = 8
 
 /**
@@ -80,7 +82,7 @@ export async function calculateVaultRevenue(
     vaultInfo.networkId,
   )
   const nativeTokenAddress = await strategyContract.read.native()
-  const tokenId = `${vaultInfo.networkId}:${nativeTokenAddress.toLowerCase()}`
+  const tokenId = `${vaultInfo.networkId}:native`
   const tokenContract = await getErc20Contract(
     nativeTokenAddress,
     vaultInfo.networkId,
