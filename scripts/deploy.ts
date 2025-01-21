@@ -14,18 +14,30 @@ async function getConfig() {
     Object.assign(process.env, await loadSecret(secretName))
   }
 
-  const argv = await yargs.env('').option('deploy-salt', {
-    description: 'Salt to use for CREATE2 deployments',
-    type: 'string',
-    demandOption: true,
-  }).argv
+  const argv = await yargs
+    .env('')
+    .option('deploy-salt', {
+      description: 'Salt to use for CREATE2 deployments',
+      type: 'string',
+      demandOption: true,
+    })
+    .option('owner-address', {
+      description: 'Address of the address to use as owner',
+      type: 'string',
+      demandOption: true,
+    }).argv
 
   return {
     deploySalt: argv['deploy-salt'],
+    ownerAddress: argv['owner-address'],
   }
 }
 
-const CONTRACT_NAME = 'Example'
+const CONTRACT_NAME = 'Registry'
+
+const SUPPORTED_NETWORKS = ['celo', 'mainnet', 'arbitrum', 'polygon', 'op', 'base']
+
+const ONE_DAY = 60 * 60 * 24
 
 async function main() {
   const config = await getConfig()
@@ -33,8 +45,8 @@ async function main() {
 
   let address: string
 
-  const constructorArgs = ['FOO', 'BAR']
-  if (hre.network.name === 'celo') {
+  const constructorArgs = [config.ownerAddress, ONE_DAY]
+  if (SUPPORTED_NETWORKS.includes(hre.network.name)) {
     console.log(`Deploying ${CONTRACT_NAME} with OpenZeppelin Defender`)
     const result = await hre.defender.deployContract(
       Contract,

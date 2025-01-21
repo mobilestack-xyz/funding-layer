@@ -31,6 +31,31 @@ const config: HardhatUserConfig = {
       accounts,
       chainId: 42220,
     },
+    mainnet: {
+      url: 'https://rpc.ankr.com/eth',
+      accounts,
+      chainId: 1,
+    },
+    arbitrum: {
+      url: 'https://arb1.arbitrum.io/rpc',
+      accounts,
+      chainId: 42161,
+    },
+    op: {
+      url: 'https://mainnet.optimism.io',
+      accounts,
+      chainId: 10,
+    },
+    base: {
+      url: 'https://rpc.ankr.com/base',
+      accounts,
+      chainId: 8453,
+    },
+    polygon: {
+      url: 'https://rpc.ankr.com/polygon',
+      accounts,
+      chainId: 137,
+    },
   },
   etherscan: {
     apiKey: {
