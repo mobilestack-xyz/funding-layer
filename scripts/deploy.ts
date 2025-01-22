@@ -48,7 +48,7 @@ const ONE_DAY = 60 * 60 * 24
 
 async function main() {
   const config = await getConfig()
-  const Contract = await hre.ethers.getContractFactory(CONTRACT_NAME)
+  const Registry = await hre.ethers.getContractFactory(CONTRACT_NAME)
 
   let address: string
 
@@ -56,14 +56,14 @@ async function main() {
   if (SUPPORTED_NETWORKS.includes(hre.network.name)) {
     console.log(`Deploying ${CONTRACT_NAME} with OpenZeppelin Defender`)
     const result = await hre.defender.deployContract(
-      Contract,
+      Registry,
       constructorArgs,
       { salt: config.deploySalt },
     )
     address = await result.getAddress()
   } else {
     console.log(`Deploying ${CONTRACT_NAME} with local signer`)
-    const result = await Contract.deploy(...constructorArgs)
+    const result = await Registry.deploy(...constructorArgs)
     address = await result.getAddress()
   }
 

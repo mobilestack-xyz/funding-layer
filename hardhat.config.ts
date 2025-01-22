@@ -61,6 +61,11 @@ const config: HardhatUserConfig = {
     apiKey: {
       alfajores: process.env.CELOSCAN_API_KEY!,
       celo: process.env.CELOSCAN_API_KEY!,
+      arbitrumOne: process.env.ARBISCAN_API_KEY!,
+      mainnet: process.env.ETHERSCAN_API_KEY!,
+      optimisticEthereum: process.env.OPSCAN_API_KEY!,
+      base: process.env.BASESCAN_API_KEY!,
+      polygon: process.env.POLYGONSCAN_API_KEY!,
     },
     customChains: [
       {
