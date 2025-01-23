@@ -1,3 +1,4 @@
+// ABI of https://github.com/beefyfinance/beefy-contracts/blob/c71d985b2fb239b68f805f82f89f3825c266957b/contracts/BIFI/strategies/Common/StratFeeManagerInitializable.sol
 const stratFeeManagerInitializable = [
   {
     inputs: [

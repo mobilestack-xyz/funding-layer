@@ -237,6 +237,7 @@ describe('Beefy revenue calculation', () => {
         startTimestamp: new Date(0),
         endTimestamp: new Date(100),
       })
+
       // 160 USD from Arbitrum, 5 from Ethereum
       expect(result).toEqual(165)
     })
