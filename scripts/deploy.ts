@@ -65,7 +65,7 @@ async function main() {
   let address: string
 
   const constructorArgs = [config.ownerAddress, ONE_DAY]
-  if (SUPPORTED_NETWORKS.includes(hre.network.name)) {
+  if (config.useDefender) {
     console.log(`Deploying ${CONTRACT_NAME} with OpenZeppelin Defender`)
     const result = await hre.defender.deployContract(
       Registry,
