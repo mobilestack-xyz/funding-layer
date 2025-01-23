@@ -34,7 +34,7 @@ async function main(args: ReturnType<typeof parseArgs>) {
     .map((result) => `${result.address},${result.revenue}`)
     .join('\n')
 
-  writeFileSync(args['output-file'], output)
+  writeFileSync(args['output-file'], output, { encoding: 'utf-8' })
   console.log(`Wrote results to ${args['output-file']}`)
 }
 
