@@ -8,6 +8,9 @@ import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 contract Registry is AccessControlDefaultAdminRules {
   using SafeERC20 for IERC20;
 
+  // Each value in rewardRates is the numerator of a fraction whose
+  // denominator is fixed at 1E18; the true reward rate is calculated
+  // by dividing the numerator by this number.
   event ReferrerRegistered(
     string indexed referrerId,
     string[] protocolIds,
