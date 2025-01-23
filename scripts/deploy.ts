@@ -40,6 +40,7 @@ async function getConfig() {
     }).argv
 
   return {
+    useDefender: argv['use-defender'],
     deploySalt: argv['deploy-salt'],
     ownerAddress: argv['owner-address'],
   }
