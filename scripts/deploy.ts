@@ -16,15 +16,27 @@ async function getConfig() {
 
   const argv = await yargs
     .env('')
+    .option('use-defender', {
+      description: 'Deploy using OpenZeppelin Defender',
+      type: 'boolean',
+      implies: ['deploy-salt'],
+    })
     .option('deploy-salt', {
       description: 'Salt to use for CREATE2 deployments',
       type: 'string',
-      demandOption: true,
     })
     .option('owner-address', {
       description: 'Address of the address to use as owner',
       type: 'string',
       demandOption: true,
+    })
+    .check((argv) => {
+      if (argv.useDefender && !SUPPORTED_NETWORKS.includes(hre.network.name)) {
+        throw Error(
+          `--use-defender only supports networks: ${SUPPORTED_NETWORKS}`,
+        )
+      }
+      return true
     }).argv
 
   return {
