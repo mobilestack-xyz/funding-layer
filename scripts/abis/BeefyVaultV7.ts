@@ -1,3 +1,4 @@
+// ABI of https://github.com/beefyfinance/beefy-contracts/blob/d7593120d69730944970a4eda9441271abe1614c/contracts/BIFI/vaults/BeefyVaultV7.sol
 const beefyVaultV7 = [
   {
     anonymous: false,

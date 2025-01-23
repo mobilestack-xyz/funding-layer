@@ -32,20 +32,22 @@ export async function getVaults(
   // did not interact with some vault over the time range, but already had funds locked in it, filtering based
   // on transaction time would cause the vault to be silently ignored.
 
-  const allVaults = portfolioData.reduce(
-    (vaults, data) => vaults.add(data.product_key),
-    new Set<string>(),
-  )
+  const transactionsByVault = portfolioData.reduce((map, data) => {
+    if (!map.has(data.product_key)) {
+      map.set(data.product_key, [])
+    }
+    map.get(data.product_key)?.push(data)
+    return map
+  }, new Map<string, BeefyInvestorTransactionWithUsdBalance[]>())
 
   const vaultsInfo: VaultsInfo = {}
 
-  for (const vault of allVaults) {
-    // Ensure that per-vault transaction history is sorted oldest to newest.
-    const txHistory = portfolioData
-      .filter((data) => data.product_key === vault)
-      .sort((a, b) => {
-        return new Date(a.datetime).getTime() - new Date(b.datetime).getTime()
-      })
+  // Iterate over each vault and process its grouped transactions
+  for (const [vault, txHistory] of transactionsByVault.entries()) {
+    // Sort transactions for this vault by date (oldest to newest)
+    txHistory.sort(
+      (a, b) => new Date(a.datetime).getTime() - new Date(b.datetime).getTime(),
+    )
 
     const beefyChain = txHistory[0].chain
     const networkId = BEEFY_CHAIN_TO_NETWORK_ID[beefyChain]

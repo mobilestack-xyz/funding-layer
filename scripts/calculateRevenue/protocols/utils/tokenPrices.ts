@@ -5,7 +5,6 @@ import memoize from '@github/memoize'
 const GET_TOKENS_PRICE_HISTORY_API_URL =
   'https://api.mainnet.valora.xyz/getTokenPriceHistory'
 
-// TODO: Memoize this function so it's not repeated for every user address
 /**
  * Fetches historical token prices for a given tokenId within the provided date range
  */

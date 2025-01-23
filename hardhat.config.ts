@@ -31,11 +31,41 @@ const config: HardhatUserConfig = {
       accounts,
       chainId: 42220,
     },
+    mainnet: {
+      url: 'https://rpc.ankr.com/eth',
+      accounts,
+      chainId: 1,
+    },
+    arbitrum: {
+      url: 'https://arb1.arbitrum.io/rpc',
+      accounts,
+      chainId: 42161,
+    },
+    op: {
+      url: 'https://mainnet.optimism.io',
+      accounts,
+      chainId: 10,
+    },
+    base: {
+      url: 'https://rpc.ankr.com/base',
+      accounts,
+      chainId: 8453,
+    },
+    polygon: {
+      url: 'https://rpc.ankr.com/polygon',
+      accounts,
+      chainId: 137,
+    },
   },
   etherscan: {
     apiKey: {
       alfajores: process.env.CELOSCAN_API_KEY!,
       celo: process.env.CELOSCAN_API_KEY!,
+      arbitrumOne: process.env.ARBISCAN_API_KEY!,
+      mainnet: process.env.ETHERSCAN_API_KEY!,
+      optimisticEthereum: process.env.OPSCAN_API_KEY!,
+      base: process.env.BASESCAN_API_KEY!,
+      polygon: process.env.POLYGONSCAN_API_KEY!,
     },
     customChains: [
       {

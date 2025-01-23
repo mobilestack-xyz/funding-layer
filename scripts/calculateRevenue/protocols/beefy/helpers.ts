@@ -68,7 +68,8 @@ export async function _fetchFeeEvents({
   let currentBlock = startBlock
 
   const feeEvents: FeeEvent[] = []
-  while (currentBlock < endBlock) {
+
+  while (currentBlock <= endBlock) {
     const toBlock = Math.min(currentBlock + blocksPer, endBlock)
     const feeLogEvents = await strategyContract.getEvents.ChargedFees({
       fromBlock: BigInt(currentBlock),
@@ -83,9 +84,7 @@ export async function _fetchFeeEvents({
         timestamp: new Date(Number(block.timestamp * 1000n)),
       })
     }
-    // getEvents is inclusive to both blocks in the range; we add one block here
-    // while clamping to the endBlock to ensure we don't double-count nor overshoot.
-    currentBlock = Math.min(toBlock + 1, endBlock)
+    currentBlock = toBlock + 1
   }
   return feeEvents
 }
