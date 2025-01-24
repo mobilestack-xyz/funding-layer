@@ -12,6 +12,20 @@ yarn install
 yarn test
 ```
 
+## Local testnet
+
+Run the localtest in one terminal:
+
+```
+yarn hardhat node
+```
+
+And deploy in another:
+
+```
+SHELL=true yarn --silent hardhat --network hardhat run scripts/deploy.ts
+```
+
 ## Scripts
 
 ### Fetch Referrals

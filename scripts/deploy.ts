@@ -19,16 +19,20 @@ async function getConfig() {
     .option('use-defender', {
       description: 'Deploy using OpenZeppelin Defender',
       type: 'boolean',
-      implies: ['deploy-salt'],
+      implies: ['deploy-salt', 'owner-address'],
     })
     .option('deploy-salt', {
       description: 'Salt to use for CREATE2 deployments',
       type: 'string',
     })
+    .option('shell', {
+      description: 'Print shell commands for deployed conracts to stdout',
+      type: 'boolean',
+      conflicts: ['use-defender'],
+    })
     .option('owner-address', {
       description: 'Address of the address to use as owner',
       type: 'string',
-      demandOption: true,
     })
     .check((argv) => {
       if (argv.useDefender && !SUPPORTED_NETWORKS.includes(hre.network.name)) {
@@ -43,6 +47,7 @@ async function getConfig() {
     useDefender: argv['use-defender'],
     deploySalt: argv['deploy-salt'],
     ownerAddress: argv['owner-address'],
+    shell: argv.shell,
   }
 }
 
@@ -64,9 +69,13 @@ async function main() {
   const Registry = await hre.ethers.getContractFactory(CONTRACT_NAME)
 
   let address: string
+  let ownerAddress
 
-  const constructorArgs = [config.ownerAddress, ONE_DAY]
+  let constructorArgs
   if (config.useDefender) {
+    ownerAddress = config.ownerAddress
+    constructorArgs = [ownerAddress, ONE_DAY]
+
     console.log(`Deploying ${CONTRACT_NAME} with OpenZeppelin Defender`)
     const result = await hre.defender.deployContract(
       Registry,
@@ -75,15 +84,29 @@ async function main() {
     )
     address = await result.getAddress()
   } else {
-    console.log(`Deploying ${CONTRACT_NAME} with local signer`)
+    ownerAddress = config.ownerAddress
+    if (!ownerAddress) {
+      // This is the default signer for ethers operations.
+      ownerAddress = (await hre.ethers.getSigners())[0].address
+    }
+    constructorArgs = [ownerAddress, ONE_DAY]
+
+    if (!config.shell) {
+      console.log(`Deploying ${CONTRACT_NAME} with local signer`)
+    }
     const result = await Registry.deploy(...constructorArgs)
     address = await result.getAddress()
   }
 
-  console.log('\nTo verify the contract, run:')
-  console.log(
-    `yarn hardhat verify ${address} --network ${hre.network.name} ${constructorArgs.join(' ')}`,
-  )
+  if (config.shell) {
+    console.log(`export REGISTRY_ADDRESS=${address}`)
+    console.log(`export OWNER_ADDRESS=${ownerAddress}`)
+  } else {
+    console.log('\nTo verify the contract, run:')
+    console.log(
+      `yarn hardhat verify ${address} --network ${hre.network.name} ${constructorArgs.join(' ')}`,
+    )
+  }
 }
 
 // We recommend this pattern to be able to use async/await everywhere
