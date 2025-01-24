@@ -8,6 +8,7 @@ async function getArgs() {
   const argv = await yargs
     .env('')
     .option('protocol', {
+      alias: 'p',
       description: 'protocol that the referrals are for',
       demandOption: true,
       choices: protocols,
@@ -20,13 +21,15 @@ async function getArgs() {
       demandOption: true,
     })
     // This is coerced as a string array to prevent 0x... from being interpreted as a number
-    .option('referrer-addresses', {
-      description: 'referrer address(es)',
+    .option('referrer-ids', {
+      alias: 'r',
+      description: 'a comma separated list of referrers IDs',
       type: 'string',
       demandOption: false,
       coerce: (arg) => new Set(arg.split(',')),
     })
     .option('network-ids', {
+      alias: 'n',
       description: 'Comma-separated list of network IDs',
       type: 'string',
       demandOption: false,
@@ -36,8 +39,8 @@ async function getArgs() {
   return {
     protocol: argv['protocol'] as Protocol,
     protocolFilter: protocolFilters[argv['protocol'] as Protocol],
-    networkIds: (argv['networkIds'] as NetworkId) ?? supportedNetworkIds,
-    referrerAddresses: argv['referrerAddresses'] as string,
+    networkIds: (argv['network-ids'] as NetworkId) ?? supportedNetworkIds,
+    referrers: argv['referrer-ids'] as string,
     output: argv['output-file'],
   }
 }
@@ -55,9 +58,7 @@ function writeResults(
 async function main() {
   const args = await getArgs()
   // Conversions to allow yargs to take in a list of referrer addresses / network IDs
-  const referrerArray = args.referrerAddresses
-    ? [...args.referrerAddresses]
-    : undefined
+  const referrerArray = args.referrers ? [...args.referrers] : undefined
   const networkIdsArray = [
     ...(args.networkIds ?? supportedNetworkIds),
   ] as NetworkId[]

@@ -21,7 +21,7 @@ export function removeDuplicates(events: ReferralEvent[]): ReferralEvent[] {
 export async function fetchReferralEvents(
   networkIds: NetworkId[],
   protocol: Protocol,
-  referrerAddresses?: string[],
+  referrerIds?: string[],
 ): Promise<ReferralEvent[]> {
   const referralEvents: ReferralEvent[] = []
 
@@ -35,8 +35,8 @@ export async function fetchReferralEvents(
         networkId,
       )
 
-      const referrers = referrerAddresses
-        ? referrerAddresses
+      const referrers = referrerIds
+        ? referrerIds
         : ((await registryContract.read.getReferrers([protocol])) as string[])
 
       await Promise.all(
