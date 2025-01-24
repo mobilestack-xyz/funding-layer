@@ -1,13 +1,15 @@
 import calculateRevenueHandlers from './protocols'
+import { parse } from 'csv-parse/sync'
+import { stringify } from 'csv-stringify/sync'
 import { readFileSync, writeFileSync } from 'fs'
 import yargs from 'yargs'
 import { protocols, Protocol } from '../types'
 
 async function main(args: ReturnType<typeof parseArgs>) {
-  const eligibleAddresses = readFileSync(args['input-addresses'], 'utf-8')
-    .split('\n')
-    .filter((address) => address !== '')
-
+  const eligibleAddresses = parse(
+    readFileSync(args['input-addresses'], 'utf-8').toString(),
+    { skip_empty_lines: true },
+  ).flat()
   const handler = calculateRevenueHandlers[args['protocol-id'] as Protocol]
 
   const allResults: Array<{
@@ -30,11 +32,11 @@ async function main(args: ReturnType<typeof parseArgs>) {
       revenue,
     })
   }
-  const output = allResults
-    .map((result) => `${result.address},${result.revenue}`)
-    .join('\n')
 
-  writeFileSync(args['output-file'], output, { encoding: 'utf-8' })
+  writeFileSync(args['output-file'], stringify(allResults), {
+    encoding: 'utf-8',
+  })
+
   console.log(`Wrote results to ${args['output-file']}`)
 }
 
