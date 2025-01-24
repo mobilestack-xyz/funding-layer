@@ -1,16 +1,6 @@
-import { Address } from 'viem'
+import { NETWORK_ID_TO_REGISTRY_ADDRESS } from './consts'
 import { NetworkId, Protocol, ReferralEvent } from './types'
 import { getRegistryContract } from './utils'
-
-// TODO(ACT-1490): Update this map with the correct registry addresses
-const NETWORK_ID_TO_REGISTRY_ADDRESS = {
-  [NetworkId['ethereum-mainnet']]: '0x0',
-  [NetworkId['arbitrum-one']]: '0x0',
-  [NetworkId['op-mainnet']]: '0x0',
-  [NetworkId['celo-mainnet']]: '0x0',
-  [NetworkId['polygon-pos-mainnet']]: '0x0',
-  [NetworkId['base-mainnet']]: '0x0',
-} as Partial<Record<NetworkId, Address>>
 
 // Remove duplicate events, keeping only the earliest event for each user
 export function removeDuplicates(events: ReferralEvent[]): ReferralEvent[] {

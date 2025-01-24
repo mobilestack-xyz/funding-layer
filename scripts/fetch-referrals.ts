@@ -1,14 +1,8 @@
-import yargs from 'yargs'
-import { filterEvents as beefy } from './protocol-filters/beefy'
 import { writeFileSync } from 'fs'
-import { NetworkId, Protocol, protocols, ReferralEvent } from './types'
+import yargs from 'yargs'
+import { protocolFilters, supportedNetworkIds } from './consts'
 import { fetchReferralEvents, removeDuplicates } from './referrals'
-
-type FilterFunction = (events: ReferralEvent[]) => Promise<ReferralEvent[]>
-
-const protocolFilters: Record<Protocol, FilterFunction> = {
-  Beefy: beefy,
-}
+import { Protocol, protocols } from './types'
 
 async function getArgs() {
   const argv = await yargs
@@ -35,16 +29,10 @@ async function getArgs() {
 async function main() {
   const args = await getArgs()
 
-  const networkIds = [
-    NetworkId['celo-mainnet'],
-    NetworkId['ethereum-mainnet'],
-    NetworkId['arbitrum-one'],
-    NetworkId['op-mainnet'],
-    NetworkId['polygon-pos-mainnet'],
-    NetworkId['base-mainnet'],
-  ]
-
-  const referralEvents = await fetchReferralEvents(networkIds, args.protocol)
+  const referralEvents = await fetchReferralEvents(
+    supportedNetworkIds,
+    args.protocol,
+  )
   const uniqueEvents = removeDuplicates(referralEvents)
 
   const filteredEvents = await args.protocolFilter(uniqueEvents)
