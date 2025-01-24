@@ -1,6 +1,7 @@
 import { writeFileSync } from 'fs'
 import yargs from 'yargs'
-import { protocolFilters, supportedNetworkIds } from './consts'
+import { supportedNetworkIds } from './networks'
+import { protocolFilters } from './filters'
 import { fetchReferralEvents, removeDuplicates } from './referrals'
 import { Protocol, protocols } from './types'
 

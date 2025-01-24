@@ -1,4 +1,4 @@
-import { NETWORK_ID_TO_REGISTRY_ADDRESS } from './consts'
+import { NETWORK_ID_TO_REGISTRY_ADDRESS } from './networks'
 import { NetworkId, Protocol, ReferralEvent } from './types'
 import { getRegistryContract } from './utils'
 
