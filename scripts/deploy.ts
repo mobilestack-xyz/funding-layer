@@ -19,7 +19,7 @@ async function getConfig() {
     .option('use-defender', {
       description: 'Deploy using OpenZeppelin Defender',
       type: 'boolean',
-      implies: ['deploy-salt'],
+      implies: ['deploy-salt', 'owner-address'],
     })
     .option('deploy-salt', {
       description: 'Salt to use for CREATE2 deployments',
@@ -33,7 +33,6 @@ async function getConfig() {
     .option('owner-address', {
       description: 'Address of the address to use as owner',
       type: 'string',
-      demandOption: true,
     })
     .check((argv) => {
       if (argv.useDefender && !SUPPORTED_NETWORKS.includes(hre.network.name)) {
@@ -70,9 +69,13 @@ async function main() {
   const Registry = await hre.ethers.getContractFactory(CONTRACT_NAME)
 
   let address: string
+  let ownerAddress
 
-  const constructorArgs = [config.ownerAddress, ONE_DAY]
+  let constructorArgs
   if (config.useDefender) {
+    ownerAddress = config.ownerAddress
+    constructorArgs = [ownerAddress, ONE_DAY]
+
     console.log(`Deploying ${CONTRACT_NAME} with OpenZeppelin Defender`)
     const result = await hre.defender.deployContract(
       Registry,
@@ -81,6 +84,13 @@ async function main() {
     )
     address = await result.getAddress()
   } else {
+    ownerAddress = config.ownerAddress
+    if (!ownerAddress) {
+      // This is the default signer for ethers operations.
+      ownerAddress = (await hre.ethers.getSigners())[0].address
+    }
+    constructorArgs = [ownerAddress, ONE_DAY]
+
     if (!config.shell) {
       console.log(`Deploying ${CONTRACT_NAME} with local signer`)
     }
@@ -90,6 +100,7 @@ async function main() {
 
   if (config.shell) {
     console.log(`export REGISTRY_ADDRESS=${address}`)
+    console.log(`export OWNER_ADDRESS=${ownerAddress}`)
   } else {
     console.log('\nTo verify the contract, run:')
     console.log(
