@@ -19,7 +19,13 @@ yarn test
 Fetch referrals for a specific protocol, removes duplicate events across chains, and filters out events where the user was previously exposed to the protocol
 
 ```bash
-npx ts-node ./scripts/fetch-referrals.ts --protocol Beefy --output output.csv
+yarn ts-node ./scripts/fetch-referrals.ts --protocol Beefy --output output.csv
+```
+
+### Fetch Referrals count per referrer
+```bash
+# networkIds is optional
+yarn ts-node ./scripts/referrer-user-count.ts --protocol Beefy --referrerAddresses 0x1,0x2,0x3 --networkIds celo-mainnet,base-mainnet
 ```
 
 ## Contracts
