@@ -25,7 +25,6 @@
     "test:ci": "yarn test --ci --coverage",
     "supercheck": "yarn format && yarn lint:fix && yarn typecheck && yarn knip && yarn test",
     "example": "ts-node ./scripts/example.ts",
-    "deploy": "echo 'Deployed!'",
     "knip": "knip",
     "compile": "hardhat compile"
   },
