@@ -1,7 +1,8 @@
 import { stringify } from 'csv-stringify/sync'
 import { writeFileSync } from 'fs'
 import yargs from 'yargs'
-import { protocolFilters, supportedNetworkIds } from './consts'
+import { supportedNetworkIds } from './networks'
+import { protocolFilters } from './filters'
 import { fetchReferralEvents, removeDuplicates } from './referrals'
 import { NetworkId, Protocol, protocols } from './types'
 
