@@ -1,8 +1,9 @@
+import { stringify } from 'csv-stringify/sync'
+import { writeFileSync } from 'fs'
 import yargs from 'yargs'
 import { protocolFilters, supportedNetworkIds } from './consts'
 import { fetchReferralEvents, removeDuplicates } from './referrals'
 import { NetworkId, Protocol, protocols } from './types'
-import { writeFileSync } from 'fs'
 
 async function getArgs() {
   const argv = await yargs
@@ -43,16 +44,6 @@ async function getArgs() {
     referrers: argv['referrer-ids'] as string,
     output: argv['output-file'],
   }
-}
-
-function writeResults(
-  outputPath: string,
-  results: Array<{ referrer: string; referralCount: number }>,
-) {
-  const output = results
-    .map((result) => `${result.referrer},${result.referralCount}`)
-    .join('\n')
-  writeFileSync(outputPath, output, { encoding: 'utf-8' })
 }
 
 async function main() {
@@ -97,7 +88,7 @@ async function main() {
     })
   }
 
-  writeResults(args.output, allResults)
+  writeFileSync(args.output, stringify(allResults), { encoding: 'utf-8' })
 }
 
 main().catch((error) => {
