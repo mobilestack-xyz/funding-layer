@@ -1,5 +1,8 @@
 export const protocols = ['Beefy'] as const
 export type Protocol = (typeof protocols)[number]
+export type FilterFunction = (
+  events: ReferralEvent[],
+) => Promise<ReferralEvent[]>
 
 export enum NetworkId {
   'celo-mainnet' = 'celo-mainnet',
