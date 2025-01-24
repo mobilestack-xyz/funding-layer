@@ -25,6 +25,11 @@ async function getConfig() {
       description: 'Salt to use for CREATE2 deployments',
       type: 'string',
     })
+    .option('shell', {
+      description: 'Print shell commands for deployed conracts to stdout',
+      type: 'boolean',
+      conflicts: ['use-defender'],
+    })
     .option('owner-address', {
       description: 'Address of the address to use as owner',
       type: 'string',
@@ -43,6 +48,7 @@ async function getConfig() {
     useDefender: argv['use-defender'],
     deploySalt: argv['deploy-salt'],
     ownerAddress: argv['owner-address'],
+    shell: argv.shell,
   }
 }
 
@@ -75,15 +81,21 @@ async function main() {
     )
     address = await result.getAddress()
   } else {
-    console.log(`Deploying ${CONTRACT_NAME} with local signer`)
+    if (!config.shell) {
+      console.log(`Deploying ${CONTRACT_NAME} with local signer`)
+    }
     const result = await Registry.deploy(...constructorArgs)
     address = await result.getAddress()
   }
 
-  console.log('\nTo verify the contract, run:')
-  console.log(
-    `yarn hardhat verify ${address} --network ${hre.network.name} ${constructorArgs.join(' ')}`,
-  )
+  if (config.shell) {
+    console.log(`export REGISTRY_ADDRESS=${address}`)
+  } else {
+    console.log('\nTo verify the contract, run:')
+    console.log(
+      `yarn hardhat verify ${address} --network ${hre.network.name} ${constructorArgs.join(' ')}`,
+    )
+  }
 }
 
 // We recommend this pattern to be able to use async/await everywhere
