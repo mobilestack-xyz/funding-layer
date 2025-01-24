@@ -62,33 +62,36 @@ async function main() {
   const uniqueEvents = removeDuplicates(referralEvents)
   const protocolFilteredEvents = await args.protocolFilter(uniqueEvents)
 
-  const allResults: Array<{
-    referrer: string
-    referralCount: number
-  }> = []
+  const allResultsObj = protocolFilteredEvents.reduce(
+    (acc: Record<string, number>, event) => {
+      const referrer = event.referrerId
+      if (acc?.[referrer]) {
+        acc[referrer] += 1
+      } else {
+        acc[referrer] = 1
+      }
+      return acc
+    },
+    {},
+  )
 
-  // If referrer addresses are provided output all the addresses and their count
-  // Else output all referrer addresses and their count
+  // Handle cases were a cli passed referrer ID param has no results
   if (referrerArray) {
-    referrerArray.forEach((referrer) => {
-      const targetReferrerEvents = protocolFilteredEvents.filter(
-        (event) => event.referrerId === referrer,
-      )
-      allResults.push({
-        referrer,
-        referralCount: targetReferrerEvents.length,
-      })
-    })
-  } else {
-    protocolFilteredEvents.forEach((event) => {
-      allResults.push({
-        referrer: event.referrerId,
-        referralCount: 1,
-      })
-    })
+    for (const referrer of referrerArray) {
+      if (!allResultsObj[referrer]) {
+        allResultsObj[referrer] = 0
+      }
+    }
   }
 
-  writeFileSync(args.output, stringify(allResults), { encoding: 'utf-8' })
+  const allResultsArray = Object.entries(allResultsObj).map(
+    ([referrer, referralCount]) => ({
+      referrer,
+      referralCount,
+    }),
+  )
+
+  writeFileSync(args.output, stringify(allResultsArray), { encoding: 'utf-8' })
 }
 
 main().catch((error) => {
