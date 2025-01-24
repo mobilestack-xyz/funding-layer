@@ -11,6 +11,7 @@ async function getArgs() {
       description: 'protocol that the referrals are for',
       demandOption: true,
       choices: protocols,
+      type: 'string',
     })
     .option('output-file', {
       alias: 'o',
