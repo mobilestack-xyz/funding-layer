@@ -111,11 +111,11 @@ describe('fetchReferralEvents', () => {
     ])
     expect(mockGetRegistryContract).toHaveBeenCalledTimes(2)
     expect(mockGetRegistryContract).toHaveBeenCalledWith(
-      '0x0',
+      '0x5a1a1027aC1d828E7415AF7d797FBA2B0cDD5575',
       NetworkId['celo-mainnet'],
     )
     expect(mockGetRegistryContract).toHaveBeenCalledWith(
-      '0x0',
+      '0x5a1a1027aC1d828E7415AF7d797FBA2B0cDD5575',
       NetworkId['arbitrum-one'],
     )
 
