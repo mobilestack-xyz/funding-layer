@@ -61,8 +61,10 @@ async function main() {
     const targetReferrerEvents = protocolFilteredEvents.filter(
       (event) => event.referrerId === referrer,
     )
-    writeFileSync(`${referrer}_referral_count.csv`, output, { encoding: 'utf-8' })
     const output = `${args.protocol},${targetReferrerEvents.length}`
+    writeFileSync(`${referrer}_referral_count.csv`, output, {
+      encoding: 'utf-8',
+    })
   })
 }
 

@@ -23,6 +23,7 @@ yarn ts-node ./scripts/fetch-referrals.ts --protocol Beefy --output output.csv
 ```
 
 ### Fetch Referrals count per referrer
+
 ```bash
 # networkIds is optional
 yarn ts-node ./scripts/referrer-user-count.ts --protocol Beefy --referrerAddresses 0x1,0x2,0x3 --networkIds celo-mainnet,base-mainnet
