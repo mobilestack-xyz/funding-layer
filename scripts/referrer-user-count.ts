@@ -22,7 +22,6 @@ async function getArgs() {
       type: 'string',
       demandOption: true,
     })
-    // This is coerced as a string array to prevent 0x... from being interpreted as a number
     .option('referrer-ids', {
       alias: 'r',
       description: 'a comma separated list of referrers IDs',
