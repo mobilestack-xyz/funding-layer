@@ -2,7 +2,7 @@ import { fetchVaultTvlHistory, fetchFeeEvents } from './helpers'
 import {
   fetchInvestorTimeline,
   BeefyInvestorTransaction,
-} from '../../../protocol-filters/beefy'
+} from '../../../protocolFilters/beefy'
 import { getVaults } from './getVaults'
 import {
   BeefyVaultTvlData,
@@ -106,7 +106,7 @@ const mockFeeEvents: FeeEvent[] = [
 ]
 
 jest.mock('./helpers')
-jest.mock('../../../protocol-filters/beefy')
+jest.mock('../../../protocolFilters/beefy')
 
 describe('getVaults', () => {
   beforeEach(() => {

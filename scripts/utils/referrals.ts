@@ -1,6 +1,6 @@
 import { NETWORK_ID_TO_REGISTRY_ADDRESS } from './networks'
-import { NetworkId, Protocol, ReferralEvent } from './types'
-import { getRegistryContract } from './utils'
+import { NetworkId, Protocol, ReferralEvent } from '../types'
+import { getRegistryContract } from './index'
 
 // Remove duplicate events, keeping only the earliest event for each user
 export function removeDuplicates(events: ReferralEvent[]): ReferralEvent[] {

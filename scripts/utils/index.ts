@@ -1,6 +1,6 @@
-import { NetworkId } from './types'
-import { registryContractAbi } from '../abis/Registry'
-import ERC20Abi from './abis/ERC20'
+import { NetworkId } from '../types'
+import { registryContractAbi } from '../../abis/Registry'
+import ERC20Abi from '../abis/ERC20'
 import { mainnet, arbitrum, optimism, polygon, base, celo } from 'viem/chains'
 import {
   createPublicClient,
