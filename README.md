@@ -43,6 +43,13 @@ yarn ts-node ./scripts/fetch-referrals.ts --protocol Beefy --output output.csv
 yarn ts-node ./scripts/referrer-user-count.ts --protocol Beefy --referrerIds app1,app2,app3 --networkIds celo-mainnet,base-mainnet
 ```
 
+### Fetch Revenue Summary
+
+```bash
+# networkIds, referrerIds, startTimestamp and endTimestamp are optional
+yarn ts-node ./scripts/referrer-revenue-summary --protocol Beefy --outputFile output.csv --referrerIds app1,app2,app3 --networkIds celo-mainnet,base-mainnet
+```
+
 ## Contracts
 
 This repository contains the contract(s) necessary to support the Mobilestack Funding Layer.
