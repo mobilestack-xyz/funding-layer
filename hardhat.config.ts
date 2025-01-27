@@ -1,3 +1,4 @@
+import '@nomicfoundation/hardhat-viem'
 import '@nomicfoundation/hardhat-toolbox-viem'
 import '@nomicfoundation/hardhat-ethers'
 import '@nomicfoundation/hardhat-chai-matchers'
