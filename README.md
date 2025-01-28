@@ -23,7 +23,16 @@ yarn hardhat node
 And deploy in another:
 
 ```
+# Copy-paste environment definition
 SHELL=true yarn --silent hardhat --network hardhat run scripts/deploy.ts
+# or use eval
+eval `SHELL=true yarn --silent hardhat --network hardhat run scripts/deploy.ts`
+```
+
+And create some dummy data:
+
+```
+yarn hardhat --network hardhat run scripts/setup-testnet.ts
 ```
 
 ## Scripts
