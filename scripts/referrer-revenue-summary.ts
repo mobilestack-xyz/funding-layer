@@ -93,6 +93,17 @@ async function main() {
 
   const referrerMap = new Map<string, ReferralInfo>()
 
+  // Initialize referrerMap with all potential referrer IDs from referrerArray
+  if (referrerArray) {
+    for (const referrer of referrerArray) {
+      referrerMap.set(referrer, {
+        totalRevenue: 0,
+        referralCount: 0,
+        averageRevenue: 0,
+      })
+    }
+  }
+
   for (const event of protocolFilteredEvents) {
     const revenue = await revenueCalcHandler({
       address: event.userAddress,
@@ -119,19 +130,6 @@ async function main() {
   }
 
   const allResultsArray: [string, number, number, number | undefined][] = []
-
-  // Handle cases were a cli passed referrer ID param that has no results
-  if (referrerArray) {
-    for (const referrer of referrerArray) {
-      if (!referrerMap.get(referrer)) {
-        referrerMap.set(referrer, {
-          totalRevenue: 0,
-          referralCount: 0,
-          averageRevenue: 0,
-        })
-      }
-    }
-  }
 
   const headers: string[] = [
     'Referrer ID',
