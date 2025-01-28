@@ -47,7 +47,7 @@ yarn ts-node ./scripts/referrer-user-count.ts --protocol Beefy --referrerIds app
 
 ```bash
 # networkIds, referrerIds, startTimestamp and endTimestamp are optional
-yarn ts-node ./scripts/referrer-revenue-summary --protocol Beefy --outputFile output.csv --referrerIds app1,app2,app3 --networkIds celo-mainnet,base-mainnet
+yarn ts-node ./scripts/referrer-revenue-summary --protocol Beefy --outputFile output.csv --referrerIds app1 app2 app3 --networkIds celo-mainnet base-mainnet
 ```
 
 ## Contracts

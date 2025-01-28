@@ -42,16 +42,15 @@ async function getArgs() {
     .option('referrer-ids', {
       alias: 'r',
       description: 'a comma separated list of referrers IDs',
-      type: 'string',
+      type: 'array',
       demandOption: false,
-      coerce: (arg) => new Set(arg.split(',')),
     })
     .option('network-ids', {
       alias: 'n',
       description: 'comma-separated list of network IDs',
-      type: 'string',
+      type: 'array',
       demandOption: false,
-      coerce: (arg: string) => new Set(arg.split(',')),
+      default: supportedNetworkIds,
     }).argv
 
   return {
@@ -59,8 +58,8 @@ async function getArgs() {
     protocolFilter: protocolFilters[argv['protocol'] as Protocol],
     startTimestamp: argv['start-timestamp'],
     endTimestamp: argv['end-timestamp'],
-    networkIds: (argv['network-ids'] as NetworkId) ?? supportedNetworkIds,
-    referrers: argv['referrer-ids'] as string,
+    networkIds: argv['network-ids'] as NetworkId[],
+    referrers: argv['referrer-ids'] as string[],
     outputFile: argv['output-file'],
   }
 }
@@ -69,13 +68,11 @@ async function main() {
   const args = await getArgs()
   const startTimestamp = new Date(args.startTimestamp)
   const endTimestamp = new Date(args.endTimestamp)
-  const networkIdsArray = [
-    ...(args.networkIds ?? supportedNetworkIds),
-  ] as NetworkId[]
-  const referrerArray = args.referrers ? [...args.referrers] : undefined
+  const referrerArray =
+    args.referrers && !!args.referrers.length ? args.referrers : undefined
 
   const referralEvents = await fetchReferralEvents(
-    networkIdsArray,
+    args.networkIds,
     args.protocolId,
     referrerArray,
   )
