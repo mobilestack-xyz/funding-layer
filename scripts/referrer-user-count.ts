@@ -62,25 +62,20 @@ async function main() {
   const uniqueEvents = removeDuplicates(referralEvents)
   const protocolFilteredEvents = await args.protocolFilter(uniqueEvents)
 
-  const allResultsObj = protocolFilteredEvents.reduce(
-    (acc: Record<string, number>, event) => {
-      const referrer = event.referrerId
-      if (acc?.[referrer]) {
-        acc[referrer] += 1
-      } else {
-        acc[referrer] = 1
-      }
-      return acc
-    },
-    {},
-  )
-
-  // Handle cases were a cli passed referrer ID param has no results
+  // Initialize allResultsObj with referrer IDs from referrerArray
+  const allResultsObj: Record<string, number> = {}
   if (referrerArray) {
     for (const referrer of referrerArray) {
-      if (!allResultsObj[referrer]) {
-        allResultsObj[referrer] = 0
-      }
+      allResultsObj[referrer] = 0
+    }
+  }
+
+  for (const event of protocolFilteredEvents) {
+    const referrer = event.referrerId
+    if (allResultsObj[referrer] !== undefined) {
+      allResultsObj[referrer] += 1
+    } else {
+      allResultsObj[referrer] = 1
     }
   }
 
