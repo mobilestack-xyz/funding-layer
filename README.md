@@ -32,7 +32,7 @@ eval `SHELL=true yarn --silent hardhat --network hardhat run scripts/deploy.ts`
 And create some dummy data:
 
 ```
-yarn hardhat --network hardhat run scripts/setup-testnet.ts
+yarn hardhat --network hardhat run scripts/setupTestnet.ts
 ```
 
 ## Scripts
