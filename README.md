@@ -42,7 +42,7 @@ Fetch the count of users referred for a specific protocol. If no network IDs or 
 
 ```bash
 # networkIds is optional
-yarn ts-node ./scripts/referrer-user-count.ts --protocol Beefy --referrerIds app1 app2 app3 --networkIds celo-mainnet base-mainnet
+yarn ts-node ./scripts/referrerUserCount.ts --protocol Beefy --referrerIds app1 app2 app3 --networkIds celo-mainnet base-mainnet
 ```
 
 ## Contracts
