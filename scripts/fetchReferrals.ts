@@ -1,8 +1,8 @@
 import { writeFileSync } from 'fs'
 import yargs from 'yargs'
-import { supportedNetworkIds } from './networks'
-import { protocolFilters } from './filters'
-import { fetchReferralEvents, removeDuplicates } from './referrals'
+import { supportedNetworkIds } from './utils/networks'
+import { protocolFilters } from './protocolFilters'
+import { fetchReferralEvents, removeDuplicates } from './utils/referrals'
 import { Protocol, protocols } from './types'
 
 async function getArgs() {

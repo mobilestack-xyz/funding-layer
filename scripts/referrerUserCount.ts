@@ -1,10 +1,10 @@
 import { stringify } from 'csv-stringify/sync'
 import { writeFileSync } from 'fs'
 import yargs from 'yargs'
-import { supportedNetworkIds } from './networks'
-import { protocolFilters } from './filters'
-import { fetchReferralEvents, removeDuplicates } from './referrals'
+import { protocolFilters } from './protocolFilters'
 import { NetworkId, Protocol, protocols } from './types'
+import { supportedNetworkIds } from './utils/networks'
+import { fetchReferralEvents, removeDuplicates } from './utils/referrals'
 
 async function getArgs() {
   const argv = await yargs

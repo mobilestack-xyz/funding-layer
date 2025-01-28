@@ -1,4 +1,4 @@
-import { fetchInvestorTimeline } from '../../../protocol-filters/beefy'
+import { fetchInvestorTimeline } from '../../../protocolFilters/beefy'
 import { VaultsInfo, BeefyInvestorTransactionWithUsdBalance } from './types'
 import { getAddress } from 'viem'
 import { fetchVaultTvlHistory, fetchFeeEvents } from './helpers'

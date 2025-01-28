@@ -1,9 +1,9 @@
-import calculateRevenueHandlers from './protocols'
+import calculateRevenueHandlers from './calculateRevenue/protocols'
 import { parse } from 'csv-parse/sync'
 import { stringify } from 'csv-stringify/sync'
 import { readFileSync, writeFileSync } from 'fs'
 import yargs from 'yargs'
-import { protocols, Protocol } from '../types'
+import { protocols, Protocol } from './types'
 
 async function main(args: ReturnType<typeof parseArgs>) {
   const eligibleAddresses = parse(

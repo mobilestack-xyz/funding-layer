@@ -1,7 +1,7 @@
 import { fetchReferralEvents, removeDuplicates } from './referrals'
-import { NetworkId, ReferralEvent } from './types'
-import { getRegistryContract } from './utils'
-jest.mock('./utils')
+import { NetworkId, ReferralEvent } from '../types'
+import { getRegistryContract } from './index'
+jest.mock('./index')
 
 describe('fetchReferralEvents', () => {
   it('should fetch all referral events', async () => {

@@ -1,4 +1,4 @@
-import { BeefyInvestorTransaction } from '../../../protocol-filters/beefy'
+import { BeefyInvestorTransaction } from '../../../protocolFilters/beefy'
 import { Address } from 'viem'
 import { NetworkId } from '../../../types'
 
