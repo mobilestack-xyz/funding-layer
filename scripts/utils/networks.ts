@@ -1,5 +1,5 @@
 import { Address } from 'viem'
-import { NetworkId } from './types'
+import { NetworkId } from '../types'
 
 export const NETWORK_ID_TO_REGISTRY_ADDRESS = {
   [NetworkId['arbitrum-one']]: '0x0',

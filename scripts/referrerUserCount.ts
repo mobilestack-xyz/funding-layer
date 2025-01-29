@@ -1,10 +1,10 @@
 import { stringify } from 'csv-stringify/sync'
 import { writeFileSync } from 'fs'
 import yargs from 'yargs'
-import { supportedNetworkIds } from './networks'
-import { protocolFilters } from './filters'
-import { fetchReferralEvents, removeDuplicates } from './referrals'
+import { protocolFilters } from './protocolFilters'
 import { NetworkId, Protocol, protocols } from './types'
+import { supportedNetworkIds } from './utils/networks'
+import { fetchReferralEvents, removeDuplicates } from './utils/referrals'
 
 async function getArgs() {
   const argv = await yargs
@@ -22,27 +22,25 @@ async function getArgs() {
       type: 'string',
       demandOption: true,
     })
-    // This is coerced as a string array to prevent 0x... from being interpreted as a number
     .option('referrer-ids', {
       alias: 'r',
       description: 'a comma separated list of referrers IDs',
-      type: 'string',
+      type: 'array',
       demandOption: false,
-      coerce: (arg) => new Set(arg.split(',')),
     })
     .option('network-ids', {
       alias: 'n',
       description: 'Comma-separated list of network IDs',
-      type: 'string',
+      type: 'array',
       demandOption: false,
-      coerce: (arg: string) => new Set(arg.split(',')),
+      default: supportedNetworkIds,
     }).argv
 
   return {
     protocol: argv['protocol'] as Protocol,
     protocolFilter: protocolFilters[argv['protocol'] as Protocol],
-    networkIds: (argv['network-ids'] as NetworkId) ?? supportedNetworkIds,
-    referrers: argv['referrer-ids'] as string,
+    networkIds: argv['network-ids'] as NetworkId[],
+    referrers: argv['referrer-ids'] as string[],
     output: argv['output-file'],
   }
 }
@@ -50,38 +48,31 @@ async function getArgs() {
 async function main() {
   const args = await getArgs()
   // Conversions to allow yargs to take in a list of referrer addresses / network IDs
-  const referrerArray = args.referrers ? [...args.referrers] : undefined
-  const networkIdsArray = [
-    ...(args.networkIds ?? supportedNetworkIds),
-  ] as NetworkId[]
+  const referrerArray =
+    args.referrers && !!args.referrers.length ? args.referrers : undefined
 
   const referralEvents = await fetchReferralEvents(
-    networkIdsArray,
+    args.networkIds,
     args.protocol,
     referrerArray,
   )
   const uniqueEvents = removeDuplicates(referralEvents)
   const protocolFilteredEvents = await args.protocolFilter(uniqueEvents)
 
-  const allResultsObj = protocolFilteredEvents.reduce(
-    (acc: Record<string, number>, event) => {
-      const referrer = event.referrerId
-      if (acc?.[referrer]) {
-        acc[referrer] += 1
-      } else {
-        acc[referrer] = 1
-      }
-      return acc
-    },
-    {},
-  )
-
-  // Handle cases were a cli passed referrer ID param has no results
+  // Initialize allResultsObj with referrer IDs from referrerArray
+  const allResultsObj: Record<string, number> = {}
   if (referrerArray) {
     for (const referrer of referrerArray) {
-      if (!allResultsObj[referrer]) {
-        allResultsObj[referrer] = 0
-      }
+      allResultsObj[referrer] = 0
+    }
+  }
+
+  for (const event of protocolFilteredEvents) {
+    const referrer = event.referrerId
+    if (referrer in allResultsObj) {
+      allResultsObj[referrer] += 1
+    } else {
+      allResultsObj[referrer] = 1
     }
   }
 
