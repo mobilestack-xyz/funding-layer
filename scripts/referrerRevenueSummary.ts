@@ -1,11 +1,11 @@
-import yargs from 'yargs'
-import { protocolFilters } from './filters'
-import { supportedNetworkIds } from './networks'
-import { NetworkId, Protocol, protocols, ReferralEvent } from './types'
-import { writeFileSync } from 'fs'
-import { fetchReferralEvents, removeDuplicates } from './referrals'
-import calculateRevenueHandlers from './calculateRevenue/protocols'
 import { stringify } from 'csv-stringify/sync'
+import { writeFileSync } from 'fs'
+import yargs from 'yargs'
+import calculateRevenueHandlers from './calculateRevenue/protocols'
+import { protocolFilters } from './protocolFilters'
+import { NetworkId, Protocol, protocols, ReferralEvent } from './types'
+import { supportedNetworkIds } from './utils/networks'
+import { fetchReferralEvents, removeDuplicates } from './utils/referrals'
 
 async function getArgs() {
   const argv = await yargs
@@ -126,7 +126,7 @@ async function main() {
       referrerInfo.totalRevenue / referrerInfo.referralCount || 0
   }
 
-  const allResultsArray: [string, number, number, number | undefined][] = []
+  const allResultsArray: [string, number, number, number][] = []
 
   const headers: string[] = [
     'Referrer ID',
@@ -139,7 +139,7 @@ async function main() {
       referrerId,
       referrerInfo.referralCount,
       referrerInfo.totalRevenue,
-      referrerInfo.averageRevenue,
+      referrerInfo.averageRevenue ?? 0,
     ])
   }
 
