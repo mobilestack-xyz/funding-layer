@@ -23,7 +23,16 @@ yarn hardhat node
 And deploy in another:
 
 ```
+# Copy-paste environment definition
 SHELL=true yarn --silent hardhat --network hardhat run scripts/deploy.ts
+# or use eval
+eval `SHELL=true yarn --silent hardhat --network hardhat run scripts/deploy.ts`
+```
+
+And create some dummy data:
+
+```
+yarn hardhat --network hardhat run scripts/setupTestnet.ts
 ```
 
 ## Scripts
@@ -33,7 +42,16 @@ SHELL=true yarn --silent hardhat --network hardhat run scripts/deploy.ts
 Fetch referrals for a specific protocol, removes duplicate events across chains, and filters out events where the user was previously exposed to the protocol
 
 ```bash
-npx ts-node ./scripts/fetch-referrals.ts --protocol Beefy --output output.csv
+yarn ts-node ./scripts/fetch-referrals.ts --protocol Beefy --output output.csv
+```
+
+### Referrer User Count
+
+Fetch the count of users referred for a specific protocol. If no network IDs or referrer IDs are passed, get the user count for all referrers across all supported networks for that protocol.
+
+```bash
+# networkIds is optional
+yarn ts-node ./scripts/referrerUserCount.ts --protocol Beefy --referrerIds app1 app2 app3 --networkIds celo-mainnet base-mainnet
 ```
 
 ## Contracts
