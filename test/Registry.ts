@@ -1,6 +1,7 @@
 import { expect } from 'chai'
 import hre from 'hardhat'
 import { getAddress } from 'ethers'
+import { toBytes, bytesToHex } from 'viem'
 
 const REGISTRY_CONTRACT_NAME = 'Registry'
 
@@ -11,9 +12,17 @@ const mockRewardAddress2 = getAddress(
   '0x123EcE3750Da237f93B8E339c536989b8978a499'.toLowerCase(),
 )
 const mockReferrerId = 'referrer1'
+const mockReferrerIdBytes = toBytes(mockReferrerId, { size: 32})
+const mockReferrerIdHex = bytesToHex(mockReferrerIdBytes)
 const mockReferrerId2 = 'referrer2'
+const mockReferrerId2Bytes = toBytes(mockReferrerId2, { size: 32 })
+const mockReferrerId2Hex = bytesToHex(mockReferrerId2Bytes)
 const mockProtocolId = 'protocol1'
+const mockProtocolIdBytes = toBytes(mockProtocolId, { size: 32 })
+const mockProtocolIdHex = bytesToHex(mockProtocolIdBytes)
 const mockProtocolId2 = 'protocol2'
+const mockProtocolId2Bytes = toBytes(mockProtocolId2, { size: 32 })
+const mockProtocolId2Hex = bytesToHex(mockProtocolId2Bytes)
 const mockRewardRates = [10]
 
 describe(REGISTRY_CONTRACT_NAME, function () {
@@ -29,11 +38,11 @@ describe(REGISTRY_CONTRACT_NAME, function () {
   describe('Referrer Registration', function () {
     it('should register a referrer correctly', async function () {
       const { registry } = await deployRegistryContract()
-      const protocolIds = [mockProtocolId]
+      const protocolIds = [mockProtocolIdBytes]
 
       await expect(
         registry.registerReferrer(
-          mockReferrerId,
+          mockReferrerIdBytes,
           protocolIds,
           mockRewardRates,
           mockRewardAddress,
@@ -41,99 +50,99 @@ describe(REGISTRY_CONTRACT_NAME, function () {
       )
         .to.emit(registry, 'ReferrerRegistered')
         .withArgs(
-          mockReferrerId,
-          protocolIds,
+          mockReferrerIdHex,
+          [mockProtocolIdHex],
           mockRewardRates,
           mockRewardAddress,
         )
 
       // Check that the referrer was registered correctly
-      const referrer = await registry.getRewardRate(
-        mockProtocolId,
-        mockReferrerId,
+      const referrerRewardRate = await registry.getRewardRate(
+        mockProtocolIdBytes,
+        mockReferrerIdBytes,
       )
-      expect(referrer).to.equal(10)
+      expect(referrerRewardRate).to.equal(10)
 
-      const referrers = await registry.getReferrers(mockProtocolId)
-      expect(referrers).to.deep.equal([mockReferrerId])
+      const referrers = await registry.getReferrers(mockProtocolIdBytes)
+      expect(referrers).to.deep.equal([mockReferrerIdHex])
     })
     it('should register a referrer with multiple protocolIds', async function () {
       const { registry } = await deployRegistryContract()
-      const protocolIds = ['protocol1', 'protocol2']
+      const protocolIds = [mockProtocolIdBytes, mockProtocolId2Bytes]
       const rewardRates = [10, 20]
 
       await expect(
         registry.registerReferrer(
-          mockReferrerId,
+          mockReferrerIdBytes,
           protocolIds,
           rewardRates,
           mockRewardAddress,
         ),
       )
         .to.emit(registry, 'ReferrerRegistered')
-        .withArgs(mockReferrerId, protocolIds, rewardRates, mockRewardAddress)
+        .withArgs(mockReferrerIdHex, [mockProtocolIdHex, mockProtocolId2Hex], rewardRates, mockRewardAddress)
 
       // Check that the referrer was registered correctly to protocol1
       const rewardRate1 = await registry.getRewardRate(
-        'protocol1',
-        mockReferrerId,
+        mockProtocolIdBytes,
+        mockReferrerIdBytes,
       )
       expect(rewardRate1).to.equal(10)
 
-      const referrersProtocol1 = await registry.getReferrers('protocol1')
-      expect(referrersProtocol1).to.deep.equal([mockReferrerId])
+      const referrersProtocol1 = await registry.getReferrers(mockProtocolIdBytes)
+      expect(referrersProtocol1).to.deep.equal([mockReferrerIdHex])
 
       // Check that the referrer was registered correctly to protocol2
       const rewardRate2 = await registry.getRewardRate(
-        'protocol2',
-        mockReferrerId,
+        mockProtocolId2Bytes,
+        mockReferrerIdBytes
       )
       expect(rewardRate2).to.equal(20)
 
-      const referrersProtocol2 = await registry.getReferrers('protocol2')
-      expect(referrersProtocol2).to.deep.equal([mockReferrerId])
+      const referrersProtocol2 = await registry.getReferrers(mockProtocolId2Bytes)
+      expect(referrersProtocol2).to.deep.equal([mockReferrerIdHex])
     })
 
     it('should correctly re-register a referrer', async function () {
       const { registry } = await deployRegistryContract()
       await registry.registerReferrer(
-        mockReferrerId,
-        [mockProtocolId],
+        mockReferrerIdBytes,
+        [mockProtocolIdBytes],
         mockRewardRates,
         mockRewardAddress,
       )
 
       // Re-register the referrer with the different protocolIds
       await registry.registerReferrer(
-        mockReferrerId,
-        [mockProtocolId2],
+        mockReferrerIdBytes,
+        [mockProtocolId2Bytes],
         mockRewardRates,
         mockRewardAddress2,
       )
       // Check that the referrer is no longer registered to protocol1
-      const referrersProtocol1 = await registry.getReferrers(mockProtocolId)
+      const referrersProtocol1 = await registry.getReferrers(mockProtocolIdBytes)
       expect(referrersProtocol1).to.deep.equal([])
       // Check that the referrer is now registered to protocol2
-      const referrersProtocol2 = await registry.getReferrers(mockProtocolId2)
-      expect(referrersProtocol2).to.deep.equal([mockReferrerId])
+      const referrersProtocol2 = await registry.getReferrers(mockProtocolId2Bytes)
+      expect(referrersProtocol2).to.deep.equal([mockReferrerIdHex])
       // Check that the protocol(s) for the referrer has been updated
-      const protocols = await registry.getProtocols(mockReferrerId)
-      expect(protocols).to.deep.equal([mockProtocolId2])
+      const protocols = await registry.getProtocols(mockReferrerIdBytes)
+      expect(protocols).to.deep.equal([mockProtocolId2Hex])
       // Check that the referrer's reward address has been updated
-      const rewardAddress = await registry.getRewardAddress(mockReferrerId)
+      const rewardAddress = await registry.getRewardAddress(mockReferrerIdBytes)
       expect(rewardAddress).to.equal(mockRewardAddress2)
     })
 
     it('should allow only the owner to register a referrer', async function () {
       const { registry, addr1 } = await deployRegistryContract()
-      const protocolIds = [mockProtocolId]
+      const protocolIds = [mockProtocolIdBytes]
 
       // Non-owner (addr1) should not be able to register the referrer
       await expect(
         registry
           .connect(addr1)
           .registerReferrer(
-            mockReferrerId,
+            mockReferrerIdBytes,
             protocolIds,
             mockRewardRates,
             mockRewardAddress,
@@ -147,8 +156,8 @@ describe(REGISTRY_CONTRACT_NAME, function () {
       const { registry, addr1 } = await deployRegistryContract()
 
       await registry.registerReferrer(
-        mockReferrerId,
-        [mockProtocolId],
+        mockReferrerIdBytes,
+        [mockProtocolIdBytes],
         mockRewardRates,
         mockRewardAddress,
       )
@@ -156,106 +165,183 @@ describe(REGISTRY_CONTRACT_NAME, function () {
       await expect(
         registry
           .connect(addr1)
-          .registerReferral(mockReferrerId, mockProtocolId),
+          .registerReferral(mockReferrerIdBytes, mockProtocolIdBytes),
       )
         .to.emit(registry, 'ReferralRegistered')
-        .withArgs(mockProtocolId, mockReferrerId, addr1.address)
+        .withArgs(mockProtocolIdHex, mockReferrerIdHex, addr1.address)
 
       const [userAddresses, timestamps] = await registry.getUsers(
-        mockProtocolId,
-        mockReferrerId,
+        mockProtocolIdBytes,
+        mockReferrerIdBytes,
       )
       expect(userAddresses).to.include(addr1.address)
       expect(timestamps[0]).to.be.above(0)
     })
 
-    it('should skip referral if the referrer does not exist', async function () {
+    it('should register a referral to multiple protocols', async function () {
       const { registry, addr1 } = await deployRegistryContract()
-      const referrerId = 'referrerNotExist'
+      const protocolIds = [mockProtocolIdBytes, mockProtocolId2Bytes]
+      const rewardRates = [10, 20]
+
+      await registry.registerReferrer(
+        mockReferrerIdBytes,
+        protocolIds,
+        rewardRates,
+        mockRewardAddress,
+      )
 
       await expect(
-        registry.connect(addr1).registerReferral(referrerId, mockProtocolId),
+        registry
+          .connect(addr1)
+          .registerReferrals(mockReferrerIdBytes, protocolIds),
+      )
+        .to.emit(registry, 'ReferralRegistered')
+        .withArgs(mockProtocolIdHex, mockReferrerIdHex, addr1.address)
+        .to.emit(registry, 'ReferralRegistered')
+        .withArgs(mockProtocolId2Hex, mockReferrerIdHex, addr1.address)
+
+      const [userAddressesProtocol1, timestampsProtocol1] = await registry.getUsers(
+        mockProtocolIdBytes,
+        mockReferrerIdBytes,
+      )
+      expect(userAddressesProtocol1).to.include(addr1.address)
+      expect(timestampsProtocol1[0]).to.be.above(0)
+
+      const [userAddressesProtocol2, timestampsProtocol2] = await registry.getUsers(
+        mockProtocolId2Bytes,
+        mockReferrerIdBytes,
+      )
+      expect(userAddressesProtocol2).to.include(addr1.address)
+      expect(timestampsProtocol2[0]).to.be.above(0)
+    })
+
+    it('should skip referral if the referrer does not exist', async function () {
+      const { registry, addr1 } = await deployRegistryContract()
+
+      await expect(
+        registry.connect(addr1).registerReferral(mockReferrerIdBytes, mockProtocolIdBytes),
       )
         .to.be.revertedWithCustomError(registry, 'ReferrerNotRegistered')
-        .withArgs(mockProtocolId, referrerId)
+        .withArgs(mockProtocolIdHex, mockReferrerIdHex)
     })
 
     it('should skip referral if the user is already registered', async function () {
       const { registry, addr1 } = await deployRegistryContract()
 
       await registry.registerReferrer(
-        mockReferrerId,
-        [mockProtocolId],
+        mockReferrerIdBytes,
+        [mockProtocolIdBytes],
         mockRewardRates,
         mockRewardAddress,
       )
       await registry.registerReferrer(
-        mockReferrerId2,
-        [mockProtocolId],
+        mockReferrerId2Bytes,
+        [mockProtocolIdBytes],
         mockRewardRates,
         mockRewardAddress,
       )
       await registry
         .connect(addr1)
-        .registerReferral(mockReferrerId, mockProtocolId)
+        .registerReferral(mockReferrerIdBytes, mockProtocolIdBytes)
 
       // Trying to register again should revert with custom error "UserAlreadyRegistered"
       await expect(
         registry
           .connect(addr1)
-          .registerReferral(mockReferrerId2, mockProtocolId),
+          .registerReferral(mockReferrerId2Bytes, mockProtocolIdBytes),
       )
         .to.be.revertedWithCustomError(registry, 'UserAlreadyRegistered')
-        .withArgs(mockProtocolId, mockReferrerId2, addr1.address)
+        .withArgs(mockProtocolIdHex, mockReferrerId2Hex, addr1.address)
     })
   })
 
   describe('Getters', function () {
-    it('should return referrers for a protocol', async function () {
-      const { registry } = await deployRegistryContract()
-      const protocolIds = [mockProtocolId]
+    it('should return whether or not a user is registered with a protocol', async function () {
+      const { addr1, registry } = await deployRegistryContract()
+      const protocolIds = [mockProtocolIdBytes]
 
       await registry.registerReferrer(
-        mockReferrerId,
+        mockReferrerIdBytes,
         protocolIds,
-        mockRewardRates,
-        mockRewardAddress,
-      )
-
-      const referrers = await registry.getReferrers(mockProtocolId)
-      expect(referrers).to.deep.equal([mockReferrerId])
-    })
-
-    it('should return protocols for a referrer', async function () {
-      const { registry } = await deployRegistryContract()
-      const protocolIds = [mockProtocolId]
-
-      await registry.registerReferrer(
-        mockReferrerId,
-        protocolIds,
-        mockRewardRates,
-        mockRewardAddress,
-      )
-
-      const protocols = await registry.getProtocols(mockReferrerId)
-      expect(protocols).to.deep.equal([mockProtocolId])
-    })
-
-    it('should return users and their timestamps', async function () {
-      const { registry, addr1 } = await deployRegistryContract()
-      await registry.registerReferrer(
-        mockReferrerId,
-        [mockProtocolId],
         mockRewardRates,
         mockRewardAddress,
       )
 
       await registry
         .connect(addr1)
-        .registerReferral(mockReferrerId, mockProtocolId)
+        .registerReferral(mockReferrerIdBytes, mockProtocolIdBytes)
+
+      const referred = await registry.getUserRegistration(addr1, mockProtocolIdBytes)
+      expect(referred).to.equal(true)
+
+      const notReferred = await registry.getUserRegistration(addr1, mockProtocolId2Bytes)
+      expect(notReferred).to.equal(false)
+    })
+
+    it('should return whether or not a user is registered with multiple protocols', async function () {
+      const { addr1, registry } = await deployRegistryContract()
+      const protocolIds = [mockProtocolIdBytes]
+
+      await registry.registerReferrer(
+        mockReferrerIdBytes,
+        protocolIds,
+        mockRewardRates,
+        mockRewardAddress,
+      )
+
+      await registry
+        .connect(addr1)
+        .registerReferral(mockReferrerIdBytes, mockProtocolIdBytes)
+
+      const referred = await registry.getUserRegistrations(addr1, [mockProtocolIdBytes, mockProtocolId2Bytes])
+      expect(referred).to.deep.equal([true, false])
+    })
+
+    it('should return referrers for a protocol', async function () {
+      const { registry } = await deployRegistryContract()
+      const protocolIds = [mockProtocolIdBytes]
+
+      await registry.registerReferrer(
+        mockReferrerIdBytes,
+        protocolIds,
+        mockRewardRates,
+        mockRewardAddress,
+      )
+
+      const referrers = await registry.getReferrers(mockProtocolIdBytes)
+      expect(referrers).to.deep.equal([mockReferrerIdHex])
+    })
+
+    it('should return protocols for a referrer', async function () {
+      const { registry } = await deployRegistryContract()
+      const protocolIds = [mockProtocolIdBytes]
+
+      await registry.registerReferrer(
+        mockReferrerIdBytes,
+        protocolIds,
+        mockRewardRates,
+        mockRewardAddress,
+      )
+
+      const protocols = await registry.getProtocols(mockReferrerIdBytes)
+      expect(protocols).to.deep.equal([mockProtocolIdHex])
+    })
+
+    it('should return users and their timestamps', async function () {
+      const { registry, addr1 } = await deployRegistryContract()
+      await registry.registerReferrer(
+        mockReferrerIdBytes,
+        [mockProtocolIdBytes],
+        mockRewardRates,
+        mockRewardAddress,
+      )
+
+      await registry
+        .connect(addr1)
+        .registerReferral(mockReferrerIdBytes, mockProtocolIdBytes)
       const [userAddresses, timestamps] = await registry.getUsers(
-        mockProtocolId,
-        mockReferrerId,
+        mockProtocolIdBytes,
+        mockReferrerIdBytes,
       )
 
       expect(userAddresses).to.include(addr1.address)
@@ -266,15 +352,15 @@ describe(REGISTRY_CONTRACT_NAME, function () {
       const { registry } = await deployRegistryContract()
 
       await registry.registerReferrer(
-        mockReferrerId,
-        [mockProtocolId],
+        mockReferrerIdBytes,
+        [mockProtocolIdBytes],
         mockRewardRates,
         mockRewardAddress,
       )
 
       const rewardRate = await registry.getRewardRate(
-        mockProtocolId,
-        mockReferrerId,
+        mockProtocolIdBytes,
+        mockReferrerIdBytes,
       )
       expect(rewardRate).to.equal(mockRewardRates[0])
     })
@@ -283,13 +369,13 @@ describe(REGISTRY_CONTRACT_NAME, function () {
       const { registry } = await deployRegistryContract()
 
       await registry.registerReferrer(
-        mockReferrerId,
-        [mockProtocolId],
+        mockReferrerIdBytes,
+        [mockProtocolIdBytes],
         mockRewardRates,
         mockRewardAddress,
       )
 
-      const rewardRate = await registry.getRewardAddress(mockReferrerId)
+      const rewardRate = await registry.getRewardAddress(mockReferrerIdBytes)
       expect(rewardRate).to.equal(mockRewardAddress)
     })
   })

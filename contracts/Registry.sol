@@ -12,23 +12,23 @@ contract Registry is AccessControlDefaultAdminRules {
   // denominator is fixed at 1E18; the true reward rate is calculated
   // by dividing the numerator by this number.
   event ReferrerRegistered(
-    string indexed referrerId,
-    string[] protocolIds,
+    bytes32 indexed referrerId,
+    bytes32[] protocolIds,
     uint256[] rewardRates,
     address rewardAddress
   );
 
   event ReferralRegistered(
-    string indexed protocolId,
-    string indexed referrerId,
+    bytes32 indexed protocolId,
+    bytes32 indexed referrerId,
     address indexed userAddress
   );
 
-  error ReferrerNotRegistered(string protocolId, string referrerId);
+  error ReferrerNotRegistered(bytes32 protocolId, bytes32 referrerId);
 
   error UserAlreadyRegistered(
-    string protocolId,
-    string referrerId,
+    bytes32 protocolId,
+    bytes32 referrerId,
     address userAddress
   );
 
@@ -41,13 +41,13 @@ contract Registry is AccessControlDefaultAdminRules {
     address[] userAddresses;
   }
 
-  mapping(string => string[]) private _protocolIdToReferrerIds;
+  mapping(bytes32 => bytes32[]) private _protocolIdToReferrerIds;
   // Reverse lookup needed when re-registering a referrer
-  mapping(string => string[]) private _referrerIdToProtocolIds;
-  mapping(string => address) private _referrerIdToRewardAddress;
-  mapping(string => mapping(string => Referrer))
+  mapping(bytes32 => bytes32[]) private _referrerIdToProtocolIds;
+  mapping(bytes32 => address) private _referrerIdToRewardAddress;
+  mapping(bytes32 => mapping(bytes32 => Referrer))
     private _referrerInfoByProtocol;
-  mapping(string => mapping(address => User)) private _userInfoByProtocol;
+  mapping(bytes32 => mapping(address => User)) private _userInfoByProtocol;
 
   bool private _referrerIsRegistered;
 
@@ -57,15 +57,15 @@ contract Registry is AccessControlDefaultAdminRules {
   ) AccessControlDefaultAdminRules(transferDelay, owner) {}
 
   function registerReferrer(
-    string calldata referrerId,
-    string[] calldata protocolIds,
+    bytes32 referrerId,
+    bytes32[] calldata protocolIds,
     uint256[] calldata rewardRates,
     address rewardAddress
   ) external onlyRole(DEFAULT_ADMIN_ROLE) {
     // Remove referrer from protocols from previous registrations
     for (uint256 i = 0; i < _referrerIdToProtocolIds[referrerId].length; i++) {
-      string memory protocol = _referrerIdToProtocolIds[referrerId][i];
-      string[] storage referrerIds = _protocolIdToReferrerIds[protocol];
+      bytes32 protocol = _referrerIdToProtocolIds[referrerId][i];
+      bytes32[] storage referrerIds = _protocolIdToReferrerIds[protocol];
 
       for (uint256 j = 0; j < referrerIds.length; j++) {
         if (
@@ -80,7 +80,7 @@ contract Registry is AccessControlDefaultAdminRules {
       }
     }
     // Reset the list of protocols for the referrer
-    _referrerIdToProtocolIds[referrerId] = new string[](0);
+    _referrerIdToProtocolIds[referrerId] = new bytes32[](0);
     // Add/update the reward rate for each protocol, add the referrer to the list of referrers for each protocol
     for (uint256 i = 0; i < protocolIds.length; i++) {
       _referrerInfoByProtocol[protocolIds[i]][referrerId]
@@ -99,12 +99,35 @@ contract Registry is AccessControlDefaultAdminRules {
     );
   }
 
-  function registerReferral(
-    string calldata referrerId,
-    string calldata protocolId
-  ) external {
-    _referrerIsRegistered = false;
-    for (uint256 i = 0; i < _referrerIdToProtocolIds[referrerId].length; i++) {
+  function getUserRegistrations(
+                                 address userAddress,
+                                 bytes32[] calldata protocolIds
+  ) external view returns (bool[] memory) {
+      bool[] memory registrations = new bool[](protocolIds.length);
+      for (uint256 i = 0; i < protocolIds.length; i++) {
+          registrations[i] = this.getUserRegistration(userAddress, protocolIds[i]);
+      }
+      return registrations;
+  }
+
+  function getUserRegistration(
+                                 address userAddress,
+                                 bytes32 protocolId
+  ) external view returns (bool) {
+      return _userInfoByProtocol[protocolId][userAddress].timestamp != 0;
+  }
+
+  // This registration functionality needs to be inside of an internal helper,
+  // rather than in the external `registerReferral` directly, since the batch
+  // `registerReferrals` must use this logic as a subroutine, and nested internal
+  // contract calls modify the value of `msg.sender`.
+  function _registerReferral(
+                             bytes32 referrerId,
+                             bytes32 protocolId,
+                             address userAddress
+  ) internal {
+      _referrerIsRegistered = false;
+      for (uint256 i = 0; i < _referrerIdToProtocolIds[referrerId].length; i++) {
       if (
         keccak256(abi.encodePacked(_referrerIdToProtocolIds[referrerId][i])) ==
         keccak256(abi.encodePacked(protocolId))
@@ -117,32 +140,48 @@ contract Registry is AccessControlDefaultAdminRules {
     if (!_referrerIsRegistered) {
       revert ReferrerNotRegistered(protocolId, referrerId);
       // And that the user has not been registered before to the given protocol
-    } else if (_userInfoByProtocol[protocolId][msg.sender].timestamp != 0) {
-      revert UserAlreadyRegistered(protocolId, referrerId, msg.sender);
+    } else if (_userInfoByProtocol[protocolId][userAddress].timestamp != 0) {
+      revert UserAlreadyRegistered(protocolId, referrerId, userAddress);
     } else {
-      _userInfoByProtocol[protocolId][msg.sender] = User(block.timestamp);
+      _userInfoByProtocol[protocolId][userAddress] = User(block.timestamp);
       _referrerInfoByProtocol[protocolId][referrerId].userAddresses.push(
-        msg.sender
+        userAddress
       );
-      emit ReferralRegistered(protocolId, referrerId, msg.sender);
+      emit ReferralRegistered(protocolId, referrerId, userAddress);
     }
   }
 
+  function registerReferral(
+    bytes32 referrerId,
+    bytes32 protocolId
+  ) external {
+      _registerReferral(referrerId, protocolId, msg.sender);
+  }
+
+  function registerReferrals(
+    bytes32 referrerId,
+    bytes32[] calldata protocolIds
+  ) external {
+      for (uint256 i = 0; i < protocolIds.length; i++) {
+          _registerReferral(referrerId, protocolIds[i], msg.sender);
+      }
+  }
+
   function getReferrers(
-    string calldata protocolId
-  ) external view returns (string[] memory) {
+    bytes32 protocolId
+  ) external view returns (bytes32[] memory) {
     return _protocolIdToReferrerIds[protocolId];
   }
 
   function getProtocols(
-    string calldata providerId
-  ) external view returns (string[] memory) {
+    bytes32 providerId
+  ) external view returns (bytes32[] memory) {
     return _referrerIdToProtocolIds[providerId];
   }
 
   function getUsers(
-    string calldata protocolId,
-    string calldata referrerId
+    bytes32 protocolId,
+    bytes32 referrerId
   ) external view returns (address[] memory, uint256[] memory) {
     address[] memory userAddresses = _referrerInfoByProtocol[protocolId][
       referrerId
@@ -158,14 +197,14 @@ contract Registry is AccessControlDefaultAdminRules {
   }
 
   function getRewardRate(
-    string calldata protocolId,
-    string calldata referrerId
+    bytes32 protocolId,
+    bytes32 referrerId
   ) external view returns (uint256) {
     return _referrerInfoByProtocol[protocolId][referrerId].rewardRate;
   }
 
   function getRewardAddress(
-    string calldata referrerId
+    bytes32 referrerId
   ) external view returns (address) {
     return _referrerIdToRewardAddress[referrerId];
   }
