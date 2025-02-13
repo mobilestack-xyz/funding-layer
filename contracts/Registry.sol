@@ -49,8 +49,6 @@ contract Registry is AccessControlDefaultAdminRules {
     private _referrerInfoByProtocol;
   mapping(bytes32 => mapping(address => User)) private _userInfoByProtocol;
 
-  bool private _referrerIsRegistered;
-
   constructor(
     address owner,
     uint48 transferDelay
@@ -69,8 +67,7 @@ contract Registry is AccessControlDefaultAdminRules {
 
       for (uint256 j = 0; j < referrerIds.length; j++) {
         if (
-          keccak256(abi.encodePacked(referrerIds[j])) ==
-          keccak256(abi.encodePacked(referrerId))
+            referrerIds[j] == referrerId
         ) {
           // Replace the current element with the last element
           referrerIds[j] = referrerIds[referrerIds.length - 1];
@@ -99,63 +96,15 @@ contract Registry is AccessControlDefaultAdminRules {
     );
   }
 
-  function getUserRegistrations(
+  function isUserRegistered(
                                  address userAddress,
                                  bytes32[] calldata protocolIds
   ) external view returns (bool[] memory) {
-      bool[] memory registrations = new bool[](protocolIds.length);
+      bool[] memory registeredStatuses = new bool[](protocolIds.length);
       for (uint256 i = 0; i < protocolIds.length; i++) {
-          registrations[i] = this.getUserRegistration(userAddress, protocolIds[i]);
+          registeredStatuses[i] = _userInfoByProtocol[protocolIds[i]][userAddress].timestamp != 0;
       }
-      return registrations;
-  }
-
-  function getUserRegistration(
-                                 address userAddress,
-                                 bytes32 protocolId
-  ) external view returns (bool) {
-      return _userInfoByProtocol[protocolId][userAddress].timestamp != 0;
-  }
-
-  // This registration functionality needs to be inside of an internal helper,
-  // rather than in the external `registerReferral` directly, since the batch
-  // `registerReferrals` must use this logic as a subroutine, and nested internal
-  // contract calls modify the value of `msg.sender`.
-  function _registerReferral(
-                             bytes32 referrerId,
-                             bytes32 protocolId,
-                             address userAddress
-  ) internal {
-      _referrerIsRegistered = false;
-      for (uint256 i = 0; i < _referrerIdToProtocolIds[referrerId].length; i++) {
-      if (
-        keccak256(abi.encodePacked(_referrerIdToProtocolIds[referrerId][i])) ==
-        keccak256(abi.encodePacked(protocolId))
-      ) {
-        _referrerIsRegistered = true;
-        break;
-      }
-    }
-    // Check if the referrer is active with the protocol
-    if (!_referrerIsRegistered) {
-      revert ReferrerNotRegistered(protocolId, referrerId);
-      // And that the user has not been registered before to the given protocol
-    } else if (_userInfoByProtocol[protocolId][userAddress].timestamp != 0) {
-      revert UserAlreadyRegistered(protocolId, referrerId, userAddress);
-    } else {
-      _userInfoByProtocol[protocolId][userAddress] = User(block.timestamp);
-      _referrerInfoByProtocol[protocolId][referrerId].userAddresses.push(
-        userAddress
-      );
-      emit ReferralRegistered(protocolId, referrerId, userAddress);
-    }
-  }
-
-  function registerReferral(
-    bytes32 referrerId,
-    bytes32 protocolId
-  ) external {
-      _registerReferral(referrerId, protocolId, msg.sender);
+      return registeredStatuses;
   }
 
   function registerReferrals(
@@ -163,7 +112,29 @@ contract Registry is AccessControlDefaultAdminRules {
     bytes32[] calldata protocolIds
   ) external {
       for (uint256 i = 0; i < protocolIds.length; i++) {
-          _registerReferral(referrerId, protocolIds[i], msg.sender);
+                bool referrerIsRegistered = false;
+                bytes32 protocolId = protocolIds[i];
+      for (uint256 j = 0; j < _referrerIdToProtocolIds[referrerId].length; j++) {
+      if (
+        _referrerIdToProtocolIds[referrerId][j] == protocolId
+      ) {
+        referrerIsRegistered = true;
+        break;
+      }
+    }
+    // Check if the referrer is active with the protocol
+    if (!referrerIsRegistered) {
+      revert ReferrerNotRegistered(protocolId, referrerId);
+      // And that the user has not been registered before to the given protocol
+    } else if (_userInfoByProtocol[protocolId][msg.sender].timestamp != 0) {
+      revert UserAlreadyRegistered(protocolId, referrerId, msg.sender);
+    } else {
+      _userInfoByProtocol[protocolId][msg.sender] = User(block.timestamp);
+      _referrerInfoByProtocol[protocolId][referrerId].userAddresses.push(
+        msg.sender
+      );
+      emit ReferralRegistered(protocolId, referrerId, msg.sender);
+    }
       }
   }
 
