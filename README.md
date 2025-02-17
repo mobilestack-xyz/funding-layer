@@ -73,3 +73,13 @@ yarn hardhat run scripts/deploy.ts --network celo
 ```
 
 After this is done, you should see output in your terminal with a command to run to verify the contract on the block explorers.
+
+To upgrade, ensure that the `PROXY_ADDRESS` field is filled out in your `.env` file, and run:
+
+```bash
+yarn hardhat run scripts/upgrade.ts --network celo
+```
+
+This will initiate a proxy upgrade on OpenZeppelin Defender, which also requires two steps to complete. First, the Deployer Safe wallet must sign a transaction to deploy the new implementation contract.
+Once this is done, the _Owner_ Safe wallet must sign a transaction to upgrade the implementation of the proxy. After this is done, you should see output in your terminal with a command to run to verify
+both the proxy and implementation contracts on the block explorers.
