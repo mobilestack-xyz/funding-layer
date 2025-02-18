@@ -54,6 +54,15 @@ Fetch the count of users referred for a specific protocol. If no network IDs or 
 yarn ts-node ./scripts/referrerUserCount.ts --protocol Beefy --referrerIds app1 app2 app3 --networkIds celo-mainnet base-mainnet
 ```
 
+### Referrer Revenue Summary
+
+Fetch the revenue summary for specific protocols within a designated time frame. If no network IDs or referrer IDs are provided, this script will return the revenue summary for all referrers across all supported networks for that protocol. If no time frame is specified, the lifetime summary will be returned.
+
+```bash
+# networkIds, referrerIds, startTimestamp and endTimestamp are optional
+yarn ts-node ./scripts/referrerRevenueSummary --protocol Beefy --outputFile output.csv --referrerIds app1 app2 app3 --networkIds celo-mainnet base-mainnet --startTimestamp 1737360000 --endTimestamp 1738108000
+```
+
 ## Contracts
 
 This repository contains the contract(s) necessary to support the Mobilestack Funding Layer.
