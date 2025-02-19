@@ -1,8 +1,8 @@
 /* eslint no-console: 0 */
-import hre from 'hardhat'
-import { loadSecret } from '@valora/secrets-loader'
 import '@nomicfoundation/hardhat-ethers'
 import '@openzeppelin/hardhat-upgrades'
+import { loadSecret } from '@valora/secrets-loader'
+import hre from 'hardhat'
 import yargs from 'yargs'
 
 async function getConfig() {
@@ -98,15 +98,12 @@ async function main() {
     address = await result.getAddress()
   }
 
-  if (config.shell) {
-    console.log(`export REGISTRY_ADDRESS=${address}`)
-    console.log(`export OWNER_ADDRESS=${ownerAddress}`)
-  } else {
-    console.log('\nTo verify the contract, run:')
-    console.log(
-      `yarn hardhat verify ${address} --network ${hre.network.name} ${constructorArgs.join(' ')}`,
-    )
-  }
+  console.log(`export REGISTRY_ADDRESS=${address}`)
+  console.log(`export OWNER_ADDRESS=${ownerAddress}`)
+  console.log('\nTo verify the contract, run:')
+  console.log(
+    `yarn hardhat verify ${address} --network ${hre.network.name} ${constructorArgs.join(' ')}`,
+  )
 }
 
 // We recommend this pattern to be able to use async/await everywhere
