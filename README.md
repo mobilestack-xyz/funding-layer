@@ -58,7 +58,7 @@ yarn ts-node ./scripts/referrerUserCount.ts --protocol Beefy --referrerIds app1 
 
 This repository contains the contract(s) necessary to support the Mobilestack Funding Layer.
 
-Registry contract address: 0x5a1a1027aC1d828E7415AF7d797FBA2B0cDD5575
+Registry contract address: 0xBa9655677f4E42DD289F5b7888170bC0c7dA8Cdc
 
 Owner safe: 0xfC95675a6bB93406C0CbBa9403a084Dd8D566F06
 
